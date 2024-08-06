@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.tpo.ad_destapaciones.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

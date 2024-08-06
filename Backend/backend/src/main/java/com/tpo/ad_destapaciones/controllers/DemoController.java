@@ -1,4 +1,4 @@
-package com.example.demo.controllers;
+package com.tpo.ad_destapaciones.controllers;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
