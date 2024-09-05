@@ -56,6 +56,11 @@ public class User implements UserDetails {
     }
 
     @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
     public boolean isAccountNonExpired() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'isAccountNonExpired'");
