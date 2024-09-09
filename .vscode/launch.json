@@ -19,6 +19,16 @@
             "projectName": "mega-game",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AD_DestapacionesApplication<mega-game>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.tpo.ad_destapaciones.AD_DestapacionesApplication",
+            "projectName": "mega-game",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
