@@ -9,6 +9,16 @@
             "projectName": "backend",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-BackendApplication<mega-game>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.tpo.ad_destapaciones.BackendApplication",
+            "projectName": "mega-game",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

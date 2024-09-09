@@ -8,7 +8,7 @@
 		<version>3.2.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.uade.tpo</groupId>
+	<groupId>com.tpo</groupId>
 	<artifactId>AD_DESTAPACIONES</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>AD_DESTAPACIONES</name>
