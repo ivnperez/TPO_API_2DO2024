@@ -30,9 +30,9 @@ public class JwtService {
             long expiration) {
         return Jwts
                 .builder()
-                .subject(userDetails.getUsername()) // megagame@hotmail.com
+                .subject(userDetails.getUsername()) // ad_destapaciones@hotmail.com
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .claim("megagame", 123)
+                .claim("ad_destapaciones", 123)
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSecretKey())
                 .compact();
