@@ -24,7 +24,6 @@ import com.tpo.ad_destapaciones.exception.ServicioDuplicadoException;
 import com.tpo.ad_destapaciones.interfaces.ServicioInterface;
 import com.tpo.ad_destapaciones.repository.TipoRepository;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class ABMController {
     @Autowired
@@ -66,9 +65,9 @@ public class ABMController {
         }
     }
 
-    @PutMapping("/ABM")
-    public ResponseEntity<Servicio> modificarServicio(@RequestBody ServicioDTO modificacion) {
-        Optional<Servicio> result = servicioService.getServicioById(modificacion.getId());
+    @PutMapping(value = "/ABM/{servicioId}", consumes = "multipart/form-data")
+    public ResponseEntity<Servicio> modificarServicio(@PathVariable Long servicioId, @ModelAttribute ServicioDTO modificacion) {
+        Optional<Servicio> result = servicioService.getServicioById(servicioId);
         if (result.isPresent()) {
             Optional<Tipo> consulta = tipoRepository.findById(modificacion.getTipo());
             if (consulta.isPresent()) {
@@ -81,6 +80,8 @@ public class ABMController {
                 servicioExistente.setTipo(tipo);
                 servicioExistente.setStock(modificacion.getStock());
                 servicioExistente.setFlag_destacar(modificacion.getFlag_destacar());
+                servicioExistente.setImagen(modificacion.getImagen()); // Manejar la imagen
+    
                 Servicio servicioActualizado = servicioService.modificarServicio(servicioExistente);
                 return ResponseEntity.ok(servicioActualizado);
             } else {

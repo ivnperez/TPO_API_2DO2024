@@ -1,5 +1,6 @@
 package com.tpo.ad_destapaciones.repository;
 
+import com.tpo.ad_destapaciones.entity.User;
 import com.tpo.ad_destapaciones.entity.Venta;
 
 import java.util.List;
@@ -11,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Long> {
     @Query(value = "SELECT v FROM Venta v WHERE v.user = ?1")
-    List<Venta> findByIdUser(Long user);
-}
+        List<Venta> findByUser(User user);  // Método para buscar ventas por objeto User
+    }

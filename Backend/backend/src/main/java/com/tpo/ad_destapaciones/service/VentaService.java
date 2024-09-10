@@ -35,10 +35,14 @@ public class VentaService implements VentaInterface {
         return ventaRepository.findById(id);
     }
 
-    public List<Venta> findByIdUser(Long user) {
-        return ventaRepository.findByIdUser(user);
+    public List<Venta> findByIdUser(Long idCliente) {
+        Optional<User> user = userRepository.findById(idCliente);
+        if (user.isPresent()) {
+            return ventaRepository.findByUser(user.get());  // Aquí se pasa el objeto User en lugar del ID
+        } else {
+            throw new IllegalArgumentException("El usuario con el ID proporcionado no existe.");
+        }
     }
-
     public Venta save(VentaDTO ventaDTO) throws Exception {
         Venta venta = null;
         boolean ventaOk = true;

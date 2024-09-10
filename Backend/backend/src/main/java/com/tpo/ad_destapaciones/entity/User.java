@@ -13,36 +13,35 @@ import lombok.*;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor // Este también es necesario si tienes un constructor con argumentos
 public class User implements UserDetails {
-    public User(){
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false)
     private String nombre;
 
     @Column(nullable = false)
     private String apellido;
-    
+
     @Column
     private String movil;
 
     @Column
     private String telefono;
-    
+
     @Column(nullable = false, unique = true)
     private String email;
-    
+
     @Column(nullable = false, unique = true)
     private String usuario;
-    
+
     @Column(nullable = false)
     private String password;
-    
-    @Enumerated
+
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Override
@@ -62,26 +61,21 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isAccountNonExpired'");
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isAccountNonLocked'");
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isCredentialsNonExpired'");
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isEnabled'");
+        return true;
     }
-
 }
