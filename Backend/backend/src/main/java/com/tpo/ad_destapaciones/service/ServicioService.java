@@ -34,7 +34,7 @@ public class ServicioService implements ServicioInterface {
     public Optional<Servicio> getServicioById(Long servicioId){
         return servicioRepository.findById(servicioId);
     }
-    //Evite los datos que dependen de las relaciones Genero,Tipo
+    
     public Servicio createServicio(String nombre,String descripcion,Blob imagen,Double precio,Float descuento,Long id_tipo,Integer stock, Boolean flag_destacar) throws ServicioDuplicadoException{
         List<Servicio> servicios = servicioRepository.findByName(nombre);
         Optional<Tipo> consulta = tipoRepository.findById(id_tipo);

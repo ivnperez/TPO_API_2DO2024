@@ -19,7 +19,6 @@ import com.tpo.ad_destapaciones.entity.Tipo;
 import com.tpo.ad_destapaciones.interfaces.ServicioInterface;
 import com.tpo.ad_destapaciones.repository.TipoRepository;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class ServiciosController {
     @Autowired

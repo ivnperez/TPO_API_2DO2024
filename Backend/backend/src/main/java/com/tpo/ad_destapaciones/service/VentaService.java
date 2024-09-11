@@ -64,7 +64,7 @@ public class VentaService implements VentaInterface {
                         detalle.setVenta(venta);
                         venta.getDetalle().add(detalle);
 
-                        // Calcular subtotal y total para cada producto y multiplicar por la cantidad
+                        // Calcula subtotal y total para cada producto y multiplicar por la cantidad
                         double precioTotalServicio = servicio.getPrecio() * detalleDTO.getCantidad();
                         double precioTotalServicioDescuento = servicio.getPrecioDescuento() * detalleDTO.getCantidad();
 

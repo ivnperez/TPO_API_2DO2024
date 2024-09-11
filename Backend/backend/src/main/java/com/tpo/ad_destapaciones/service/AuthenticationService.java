@@ -24,12 +24,10 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        // Validar si el correo ya está registrado
         if (repository.existsByEmail(request.getEmail())) {
             throw new BadCredentialsException("El correo electrónico ya está registrado");
         }
 
-        // Crear un nuevo usuario
         var user = User.builder()
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())  
@@ -41,10 +39,8 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .build();
 
-        // Guardar el usuario en la base de datos
         repository.save(user);
 
-        // Generar el token JWT
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
