@@ -1,6 +1,5 @@
 import React from "react";
 
-// import Swiper core and required modules
 import {
   Navigation,
   Pagination,
@@ -42,13 +41,13 @@ function Banner() {
               <div className="col-md-6">
                 <div className="banner-content">
                   <h3 className="display-2 text-uppercase text-dark pb-5">
-                    Productos Geniales Para Vos.
+                    El mejor servicio disponible 24/7.
                   </h3>
                   <Link
                     to="/Catalogo"
                     className="btn btn-medium btn-dark text-uppercase btn-rounded-none"
                   >
-                    Ver Tienda
+                    Servicios Disponibles
                   </Link>
                 </div>
               </div>
@@ -68,13 +67,13 @@ function Banner() {
               <div className="col-md-6">
                 <div className="banner-content">
                   <h3 className="display-2 text-uppercase text-dark pb-5">
-                    Todos Los Hacks Tecnologicos Que Te Gustaria Tener.
+                    No pierdas el tiempo y dinero.
                   </h3>
                   <Link
                     to="/Catalogo"
                     className="btn btn-medium btn-dark text-uppercase btn-rounded-none"
                   >
-                    Ver Tienda
+                    Servicios Disponibles
                   </Link>
                 </div>
               </div>

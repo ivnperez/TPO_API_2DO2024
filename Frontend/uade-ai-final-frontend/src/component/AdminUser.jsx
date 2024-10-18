@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-const AdminUsuarios = () => {
+const AdminUser = () => {
   const users = useSelector(state => state.auth.users);
 
   return (
@@ -16,4 +16,4 @@ const AdminUsuarios = () => {
   );
 };
 
-export default AdminUsuarios;
+export default AdminUser;
