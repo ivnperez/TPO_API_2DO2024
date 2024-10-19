@@ -1,14 +1,14 @@
 import React from "react";
 import Banner from "./Banner";
 import Servicios from "./Servicios";
-import ProductosDestacados from "./ProductosDestacados";
+import ProductosDestacados from "./ServiciosDestacados";
 
 const Home = () => {
   return (
     <>
       <Banner />
       <Servicios />
-      <ProductosDestacados />
+      <ServiciosDestacados />
     </>
   );
 };

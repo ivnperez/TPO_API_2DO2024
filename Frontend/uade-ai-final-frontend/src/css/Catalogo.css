@@ -1,0 +1,108 @@
+/* Catalogo.css */
+
+.filtros-column {
+    margin-right: 20px; 
+}
+
+.productos-container {
+    margin-left: 20px; 
+}
+
+.catalogo-container {
+    display: flex;
+    align-items: flex-start; 
+    justify-content: center; 
+}
+
+.filtros-column {
+    margin-right: 20px; 
+}
+
+.filtros-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtros-group {
+    margin-bottom: 20px; 
+}
+
+.form-check {
+    margin-bottom: 10px; 
+}
+
+.btn-primary {
+    margin-top: 10px; 
+}
+
+.catalogo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+    flex-grow: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img-top {
+    flex-shrink: 0;
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+}
+
+.card-body {
+    flex-grow: 1;
+    padding: 1rem;
+}
+
+.card-footer {
+    padding: 1rem;
+    text-align: center;
+    margin-top: auto; 
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    filter: brightness(90%);
+}
+
+.pagination-container {
+    margin-top: 20px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+}
+
+.pagination button {
+    margin: 0 5px;
+}
