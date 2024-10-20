@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchServicioByID } from "../features/ServicioSlice";
+import { fetchServicioByID } from "../features/servicioSlice";
 import { agregarServicio } from "../features/carritoSlice";
 
 function DetalleServicio() {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchServiciosDestacados } from '../features/ServicioSlice';
+import { fetchServiciosDestacados } from '../features/servicioSlice';
 import { agregarServicio } from '../features/carritoSlice';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";

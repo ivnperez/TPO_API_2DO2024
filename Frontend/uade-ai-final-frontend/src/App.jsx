@@ -1,12 +1,14 @@
 import Navbar from "./component/Navbar.jsx";
 import Catalogo from "./component/Catalogo.jsx";
-import CarritoCompras from "./component/Carrito.jsx";
+import Carrito from "./component/Carrito.jsx";
 import { Route, Routes } from "react-router-dom";
 import Home from "./component/Home.jsx";
 import Abm from "./component/Abm.jsx";
 import Registro from "./component/Registro.jsx";
-import DetalleProducto from "./component/DetalleServicio.jsx";
+import DetalleServicio from "./component/DetalleServicio.jsx";
 import Login from "./component/Login.jsx";
+
+
 
 function App() {
   return (

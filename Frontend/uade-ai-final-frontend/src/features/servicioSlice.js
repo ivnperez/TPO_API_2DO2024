@@ -3,7 +3,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const urlServer2 = "http://localhost:3306/"; // URL del backend
 
 // Thunks para operaciones asíncronas utilizando Fetch
-
 export const fetchServicios = createAsyncThunk(
   "servicios/fetchServicios",
   async () => {
@@ -43,8 +42,7 @@ export const fetchServiciosDestacados = createAsyncThunk(
   }
 );
 
-
-const Servicioslice = createSlice({
+const servicioSlice = createSlice({
   name: "servicios",
   initialState: {
     items: [],
@@ -68,7 +66,7 @@ const Servicioslice = createSlice({
         state.error = action.error.message;
       })
       .addCase(fetchServicioByID.fulfilled, (state, action) => {
-        state.Servicioseleccionado = action.payload;
+        state.servicioseleccionado = action.payload;
       })
       .addCase(fetchServiciosDestacados.fulfilled, (state, action) => {
         state.destacados = action.payload;
@@ -77,3 +75,4 @@ const Servicioslice = createSlice({
 });
 
 export default servicioSlice.reducer;
+

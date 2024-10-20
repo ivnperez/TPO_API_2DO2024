@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Acción asincrónica para el login
-export const login = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => { //Sacar el AsyncThunk, el modelo a seguir es el carrito de compras
+export const login = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
   try {
     const response = await fetch('http://localhost:4002/api/v1/auth/authenticate', {
       method: 'POST',
@@ -15,17 +15,13 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
     }
 
     const data = await response.json();
-    console.log('Response data:', data); 
+    console.log('Response data:', data);
     console.log('Token:', data.access_token);
-    localStorage.setItem('accessToken', data.access_token); // QUITAR ESTO DE LOCAL STORAGE NO  VA
     return data;
   } catch (error) {
     return rejectWithValue(error.message);
   }
 });
-
-
-
 
 // Acción asincrónica para registrar usuario
 export const register = createAsyncThunk(
@@ -46,7 +42,6 @@ export const register = createAsyncThunk(
       }
 
       const data = await response.json();
-      localStorage.setItem('accessToken', data.token); // QUITAR LOCAL STORE NO APROVECHA REDUX
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -66,7 +61,6 @@ const authSlice = createSlice({
       state.user = null;
       state.status = 'idle';
       state.error = null;
-      localStorage.removeItem('accessToken'); //ELIMINAR PASO DE LOCAL STORAGE ESTO ESTA MAL NO SE HACE ASI
     }
   },
   extraReducers: (builder) => {

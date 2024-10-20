@@ -4,7 +4,6 @@ import imgLogo from "../images/main-logo.png";
 import "bootstrap/dist/css/bootstrap.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSearch,
   faUser,
   faCartShopping,
   faBars,
@@ -12,7 +11,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "../css/style.css";
 import "../css/Navbar.css";
-import SearchBar from "./SearchBar";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 
@@ -25,10 +23,17 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  // Estilos para la barra de navegación
+  const navbarStyle = {
+    backgroundColor: "#1c1c1c", // Color oscuro para el fondo
+    color: "#fff", // Color blanco para el texto
+  };
+
   return (
     <header
       id="header"
-      className="site-header header-scrolled position-relative text-black bg-light"
+      className="site-header position-relative"
+      style={navbarStyle} // Aplicando los estilos en línea
     >
       <nav id="header-nav" className="navbar navbar-expand-lg px-3 mb-3">
         <div className="container-fluid">
@@ -44,7 +49,7 @@ const Navbar = () => {
             aria-expanded="false"
             aria-label="Toggle navigation"
           >
-            <FontAwesomeIcon icon={faBars} className="navbar-icon" />
+            <FontAwesomeIcon icon={faBars} className="navbar-icon text-white" />
           </button>
           <div
             className="offcanvas offcanvas-end"
@@ -58,7 +63,7 @@ const Navbar = () => {
               </Link>
               <button
                 type="button"
-                className="btn-close btn-close-black"
+                className="btn-close btn-close-white"
                 data-bs-dismiss="offcanvas"
                 aria-label="Close"
               ></button>
@@ -69,18 +74,18 @@ const Navbar = () => {
                 className="navbar-nav text-uppercase justify-content-end align-items-center flex-grow-1 pe-3"
               >
                 <li className="nav-item">
-                  <Link to="/" className="nav-link me-4">
+                  <Link to="/" className="nav-link text-white me-4">
                     Inicio
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link to="/Catalogo" className="nav-link me-4">
+                  <Link to="/Catalogo" className="nav-link text-white me-4">
                     Catalogo
                   </Link>
                 </li>
                 {user && user.rol === "ADMIN" && (
                   <li className="nav-item">
-                    <Link to="/Abm" className="nav-link me-4">
+                    <Link to="/Abm" className="nav-link text-white me-4">
                       Admin
                     </Link>
                   </li>
@@ -93,12 +98,12 @@ const Navbar = () => {
                           <button onClick={handleLogout} className="btn">
                             <FontAwesomeIcon
                               icon={faSignOutAlt}
-                              className="user"
+                              className="text-white"
                             />
                           </button>
                         ) : (
                           <Link to="/login">
-                            <FontAwesomeIcon icon={faUser} className="user" />
+                            <FontAwesomeIcon icon={faUser} className="text-white" />
                           </Link>
                         )}
                       </li>
@@ -111,7 +116,7 @@ const Navbar = () => {
                         >
                           <FontAwesomeIcon
                             icon={faCartShopping}
-                            className="cart"
+                            className="text-white"
                           />
                         </button>
                       </li>
@@ -128,3 +133,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

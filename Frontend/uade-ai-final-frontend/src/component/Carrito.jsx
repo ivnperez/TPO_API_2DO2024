@@ -3,11 +3,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { agregarservicio, eliminarservicio, eliminarTodoservicio, vaciarCarrito, confirmarCompra } from '../features/carritoSlice';
+import { agregarServicio, eliminarServicio, eliminarTodoServicio, vaciarCarrito, confirmarCompra } from '../features/carritoSlice';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../css/Carrito.css";
 
-function CarritoCompras({ children }) {
+function Carrito({ children }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const serviciosCarrito = useSelector(state => state.carrito.servicios);
@@ -58,15 +58,15 @@ function CarritoCompras({ children }) {
     };
 
     const handleAgregarUnidad = (servicio) => {
-        dispatch(agregarservicio({ ...servicio, cantidad: 1 }));
+        dispatch(agregarServicio({ ...servicio, cantidad: 1 }));
     };
 
     const handleEliminarUnidad = (servicioId) => {
-        dispatch(eliminarservicio(servicioId));
+        dispatch(eliminarServicio(servicioId));
     };
 
     const handleEliminarTodoservicio = (servicioId) => {
-        dispatch(eliminarTodoservicio(servicioId));
+        dispatch(eliminarTodoServicio(servicioId));
     };
 
     const handleVaciarCarrito = () => {

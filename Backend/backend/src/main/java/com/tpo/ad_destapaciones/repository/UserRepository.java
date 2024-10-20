@@ -11,4 +11,5 @@ import com.tpo.ad_destapaciones.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);   
     boolean existsByEmail(String email);
+    boolean existsByUsuario(String usuario); 
 }

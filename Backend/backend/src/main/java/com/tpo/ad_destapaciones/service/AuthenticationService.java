@@ -24,10 +24,17 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Verificar si el correo ya existe
         if (repository.existsByEmail(request.getEmail())) {
             throw new BadCredentialsException("El correo electrónico ya está registrado");
         }
 
+        // Verificar si el nombre de usuario ya existe
+        if (repository.existsByUsuario(request.getUsuario())) {
+            throw new BadCredentialsException("El nombre de usuario ya está en uso");
+        }
+
+        // Crear y guardar el nuevo usuario
         var user = User.builder()
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())  
@@ -41,12 +48,13 @@ public class AuthenticationService {
 
         repository.save(user);
 
+        // Generar el token JWT
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .id(user.getId())
                 .email(user.getEmail())
-                .usuario(user.getUsername())
+                .usuario(user.getUsuario())
                 .nombre(user.getNombre())
                 .rol(user.getRole())
                 .build();

@@ -7,10 +7,12 @@ import '../css/Auth.css';
 const Registro = () => {
   const [form, setForm] = useState({
     nombre: '',
+    apellido: '',
+    movil: '',
     telefono: '',
-    mail: '',
-    login: '',
-    pass: '',
+    email: '',
+    usuario: '',
+    password: '',
     role: 'USER'
   });
   const dispatch = useDispatch();
@@ -46,20 +48,28 @@ const Registro = () => {
           <input type="text" name="nombre" value={form.nombre} onChange={handleChange} required />
         </div>
         <div className="form-group">
+          <label>Apellido:</label>
+          <input type="text" name="apellido" value={form.apellido} onChange={handleChange} required />
+        </div>
+        <div className="form-group">
+          <label>Movil:</label>
+          <input type="text" name="movil" value={form.movil} onChange={handleChange} required />
+        </div>
+        <div className="form-group">
           <label>Teléfono:</label>
           <input type="text" name="telefono" value={form.telefono} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label>Email:</label>
-          <input type="email" name="mail" value={form.mail} onChange={handleChange} required />
+          <input type="email" name="email" value={form.mail} onChange={handleChange} required />
         </div>
         <div className="form-group">
-          <label>Login:</label>
-          <input type="text" name="login" value={form.login} onChange={handleChange} required />
+          <label>Usuario:</label>
+          <input type="text" name="usuario" value={form.usuario} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label>Contraseña:</label>
-          <input type="password" name="pass" value={form.pass} onChange={handleChange} required />
+          <input type="password" name="password" value={form.pass} onChange={handleChange} required />
         </div>
         <button type="submit" className="auth-button">Registrar</button>
         {status === 'failed' && <p className="error-message">{error}</p>}

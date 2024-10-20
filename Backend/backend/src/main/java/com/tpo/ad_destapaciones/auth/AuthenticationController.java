@@ -3,6 +3,7 @@ package com.tpo.ad_destapaciones.auth;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,7 @@ import com.tpo.ad_destapaciones.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/auth") //Son las URIS que van a tener acceso a todo
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -24,14 +25,38 @@ public class AuthenticationController {
             @RequestBody RegisterRequest request) {
         try {
             return ResponseEntity.ok(service.register(request));
+        } catch (BadCredentialsException e) {
+            // Manejo específico para el caso de usuario o correo duplicado
+            System.out.println("Error de registro: " + e.getMessage()); // Agregar log para ver el mensaje exacto
+            return ResponseEntity.badRequest().body(
+                AuthenticationResponse.builder()
+                    .message(e.getMessage())
+                    .build()
+            );
         } catch (DataIntegrityViolationException e) {
-            throw new BadCredentialsException("El correo electrónico ya está registrado", e);
+            // Agregar log para capturar detalles del error
+            System.out.println("Error de integridad de datos: " + e.getMessage());
+            throw new BadCredentialsException("El registro ha fallado por una violación de integridad de datos", e);
+        } catch (Exception e) {
+            // Capturar cualquier otro error
+            System.out.println("Error inesperado en el registro: " + e.getMessage());
+            return ResponseEntity.status(500).body(
+                AuthenticationResponse.builder()
+                    .message("Error inesperado en el servidor")
+                    .build()
+            );
         }
     }
+    
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
+    }
+    
+    // Método para manejar las excepciones de BadCredentialsException globalmente
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentials(BadCredentialsException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }
