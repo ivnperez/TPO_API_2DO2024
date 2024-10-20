@@ -1,4 +1,4 @@
-const urlServer2 = "http://localhost:3306/"; // URL del backend
+const urlServer2 = "http://localhost:4002/"; // URL del backend
 
 export const getTipos = () => {
     return fetch(urlServer2 + `catalogo/tipo`)

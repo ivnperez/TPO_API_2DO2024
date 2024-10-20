@@ -31,6 +31,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilitar CORS
             .authorizeHttpRequests(req -> req
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/catalogo/**").permitAll() 
                 .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authenticationProvider(authenticationProvider)

@@ -7,7 +7,7 @@ import { agregarServicio } from "../features/carritoSlice";
 function DetalleServicio() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const Servicio = useSelector((state) => state.Servicios.ServicioSeleccionado);
+  const Servicio = useSelector((state) => state.Servicios.servicioSeleccionado);
 
   useEffect(() => {
     if (id) {
