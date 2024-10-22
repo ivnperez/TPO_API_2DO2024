@@ -118,24 +118,8 @@ function CatalogoABM() {
   };
 
   const manejarSubmit = () => {
-    const formData = new FormData();
-    formData.append("nombre", nuevoServicio.nombre);
-    formData.append("precio", parseFloat(nuevoServicio.precio)); // Asegurarse de que sea un número
-    formData.append("descripcion", nuevoServicio.descripcion);
-    formData.append("tipo", parseInt(nuevoServicio.tipo)); // Asegurarse de que sea un número
-    formData.append("stock", parseInt(nuevoServicio.stock)); // Asegurarse de que sea un número
-    formData.append("descuento", parseFloat(nuevoServicio.descuento));
-    formData.append("flag_destacar", nuevoServicio.flag_destacar);
-  
-    // Si hay una imagen seleccionada, agregarla al FormData
-    if (nuevoServicio.imagen) {
-      formData.append("imagen", nuevoServicio.imagen);
-    }
-  
     if (modoEdicion) {
-      // Para modificar, agregar el ID al FormData
-      formData.append("id", nuevoServicio.id);
-      dispatch(updateServicio(formData))
+      dispatch(updateServicio(nuevoServicio))
         .unwrap()
         .then(() => {
           dispatch(fetchServicios());
@@ -145,7 +129,7 @@ function CatalogoABM() {
           console.error("Error al modificar el Servicio:", error);
         });
     } else {
-      dispatch(createServicio(formData))
+      dispatch(createServicio(nuevoServicio))
         .unwrap()
         .then(() => {
           dispatch(fetchServicios());
@@ -156,7 +140,6 @@ function CatalogoABM() {
         });
     }
   };
-  
 
   const eliminarServicioseleccionado = (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este Servicio?")) {

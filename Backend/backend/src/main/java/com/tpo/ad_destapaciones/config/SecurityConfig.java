@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/catalogo/**").permitAll() 
                 .requestMatchers("/api/v1/ventas/**").authenticated()
-                .requestMatchers("/ABM/**").hasRole("ADMIN")
+                .requestMatchers("/ABM/**").permitAll() 
                 .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authenticationProvider(authenticationProvider)

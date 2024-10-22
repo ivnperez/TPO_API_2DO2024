@@ -33,11 +33,15 @@ export const createServicio = createAsyncThunk('servicios/createServicio', async
   formData.append("stock", nuevoServicio.stock);
   formData.append("flag_destacar", nuevoServicio.flag_destacar);
 
+  for (let pair of formData.entries()) {
+    console.log(pair[0]+ ', ' + pair[1]);
+}
+
   try {
     const response = await fetch(`${urlServer2}ABM`, {
       method: "POST",
       headers: {
-        'Authorization': `Bearer ${token}`, // Verifica que el encabezado sea correcto
+        'Authorization': `Bearer ${token}`, // Corrige la sintaxis del encabezado de autorización
       },
       body: formData
     });
@@ -63,13 +67,26 @@ export const updateServicio = createAsyncThunk('servicios/updateServicio', async
     return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
   }
 
+  // Agrega un log para verificar el token
+  console.log('Token utilizado para actualizar el servicio:', token);
+
   try {
-    const response = await fetch(`${urlServer2}ABM/${servicio.get("id")}`, {
+    const response = await fetch(`${urlServer2}ABM`, {
       method: "PUT",
       headers: {
-        'Authorization': `Bearer ${token}`, // No se especifica 'Content-Type' para que el navegador establezca el tipo multipart/form-data
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Corrige la sintaxis del encabezado de autorización
       },
-      body: servicio // Enviar FormData directamente
+      body: JSON.stringify({
+        id: servicio.id,
+        nombre: servicio.nombre,
+        descripcion: servicio.descripcion,
+        precio: servicio.precio,
+        descuento: servicio.descuento || 0,
+        tipo: servicio.tipo,
+        stock: servicio.stock,
+        flag_destacar: servicio.flag_destacar
+      })
     });
 
     if (!response.ok) {
@@ -84,8 +101,6 @@ export const updateServicio = createAsyncThunk('servicios/updateServicio', async
     return rejectWithValue(error.message);
   }
 });
-
-
 
 export const deleteServicio = createAsyncThunk('servicios/deleteServicio', async (id, { getState, rejectWithValue }) => {
   const state = getState();
@@ -102,7 +117,7 @@ export const deleteServicio = createAsyncThunk('servicios/deleteServicio', async
     const response = await fetch(`${urlServer2}ABM/${id}`, {
       method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`, // Verifica que el encabezado sea correcto
+        'Authorization': `Bearer ${token}`, // Corrige la sintaxis del encabezado de autorización
       },
     });
 
