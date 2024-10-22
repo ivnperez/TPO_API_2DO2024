@@ -7,7 +7,7 @@ import { agregarServicio } from "../features/carritoSlice";
 function DetalleServicio() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const Servicio = useSelector((state) => state.Servicios.servicioSeleccionado);
+  const Servicio = useSelector((state) => state.servicios.servicioSeleccionado);
 
   useEffect(() => {
     if (id) {
@@ -15,26 +15,28 @@ function DetalleServicio() {
     }
   }, [dispatch, id]);
 
+  if (!Servicio) {
+    return <div>Cargando servicio...</div>; // Mostrar un mensaje de carga temporal
+  }
+
   return (
     <div className="d-flex justify-content-center mt-4">
       <div className="row w-100">
         <div className="col-md-4 d-flex justify-content-center align-items-center">
-          {Servicio && (
-            <img
-              src={Servicio.imagen}
-              alt={Servicio.nombre}
-              style={{ maxWidth: "100%", maxHeight: "400px" }}
-            />
-          )}
+          <img
+            src={Servicio.imagen}
+            alt={Servicio.nombre}
+            style={{ maxWidth: "100%", maxHeight: "400px" }}
+          />
         </div>
         <div className="col-md-8">
-          <h3>{Servicio && Servicio.nombre}</h3>
-          <p>Descripción: {Servicio && Servicio.descripcion}</p>
-          <p>Precio: {Servicio && Servicio.precio}</p>
+          <h3>{Servicio.nombre}</h3>
+          <p>Descripción: {Servicio.descripcion}</p>
+          <p>Precio: {Servicio.precio}</p>
           <p>
             Descuento:
             <span style={{ color: "red" }}>
-              -{Servicio && Servicio.descuento}%
+              -{Servicio.descuento}%
             </span>
           </p>
           <button

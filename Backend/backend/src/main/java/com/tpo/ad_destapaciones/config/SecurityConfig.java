@@ -32,6 +32,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(req -> req
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/catalogo/**").permitAll() 
+                .requestMatchers("/api/v1/ventas/**").authenticated()
+                .requestMatchers("/ABM/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authenticationProvider(authenticationProvider)

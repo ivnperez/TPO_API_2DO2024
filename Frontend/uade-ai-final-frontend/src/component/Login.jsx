@@ -11,14 +11,14 @@ const Login = () => {
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, error } = useSelector(state => state.auth);
+  const { user, status, error } = useSelector(state => state.auth);
 
   useEffect(() => {
-    if (status === 'succeeded') {
-      alert('Login exitoso');
+    // Si el usuario está autenticado, redirigir a la página principal
+    if (user) {
       navigate('/');
     }
-  }, [status, navigate]);
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,3 +54,4 @@ const Login = () => {
 };
 
 export default Login;
+

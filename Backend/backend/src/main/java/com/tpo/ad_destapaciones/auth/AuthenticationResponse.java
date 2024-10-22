@@ -14,11 +14,13 @@ import com.tpo.ad_destapaciones.entity.Role;
 public class AuthenticationResponse {
     @JsonProperty("access_token")
     private String accessToken;
+    
+    @JsonProperty("id")
     private Long id;
+    
     private String email;
     private String usuario;
     private String nombre;
     private Role rol;
     private String message; // Agregado para mensajes de error o éxito
 }
-

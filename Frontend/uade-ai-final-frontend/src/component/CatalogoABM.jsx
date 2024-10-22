@@ -118,8 +118,24 @@ function CatalogoABM() {
   };
 
   const manejarSubmit = () => {
+    const formData = new FormData();
+    formData.append("nombre", nuevoServicio.nombre);
+    formData.append("precio", parseFloat(nuevoServicio.precio)); // Asegurarse de que sea un número
+    formData.append("descripcion", nuevoServicio.descripcion);
+    formData.append("tipo", parseInt(nuevoServicio.tipo)); // Asegurarse de que sea un número
+    formData.append("stock", parseInt(nuevoServicio.stock)); // Asegurarse de que sea un número
+    formData.append("descuento", parseFloat(nuevoServicio.descuento));
+    formData.append("flag_destacar", nuevoServicio.flag_destacar);
+  
+    // Si hay una imagen seleccionada, agregarla al FormData
+    if (nuevoServicio.imagen) {
+      formData.append("imagen", nuevoServicio.imagen);
+    }
+  
     if (modoEdicion) {
-      dispatch(updateServicio(nuevoServicio))
+      // Para modificar, agregar el ID al FormData
+      formData.append("id", nuevoServicio.id);
+      dispatch(updateServicio(formData))
         .unwrap()
         .then(() => {
           dispatch(fetchServicios());
@@ -129,7 +145,7 @@ function CatalogoABM() {
           console.error("Error al modificar el Servicio:", error);
         });
     } else {
-      dispatch(createServicio(nuevoServicio))
+      dispatch(createServicio(formData))
         .unwrap()
         .then(() => {
           dispatch(fetchServicios());
@@ -140,6 +156,7 @@ function CatalogoABM() {
         });
     }
   };
+  
 
   const eliminarServicioseleccionado = (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este Servicio?")) {
@@ -281,19 +298,6 @@ function CatalogoABM() {
                 }
               />
             </Form.Group>
-            <Form.Group controlId="formAnioLanzamiento">
-              <Form.Label>Año de Lanzamiento</Form.Label>
-              <Form.Control
-                type="text"
-                value={nuevoServicio.anioLanzamiento}
-                onChange={(e) =>
-                  setNuevoServicio({
-                    ...nuevoServicio,
-                    anioLanzamiento: e.target.value
-                  })
-                }
-              />
-            </Form.Group>
             {!modoEdicion && (
               <Form.Group controlId="formImagen">
                 <Form.Label>Cargar imagen</Form.Label>
@@ -303,19 +307,6 @@ function CatalogoABM() {
                 />
               </Form.Group>
             )}
-            <Form.Group controlId="formDesarrollador">
-              <Form.Label>Desarrollador</Form.Label>
-              <Form.Control
-                type="text"
-                value={nuevoServicio.desarrollador}
-                onChange={(e) =>
-                  setNuevoServicio({
-                    ...nuevoServicio,
-                    desarrollador: e.target.value
-                  })
-                }
-              />
-            </Form.Group>
             <Form.Group controlId="formTipo">
               <Form.Label>Tipo</Form.Label>
               <Form.Control

@@ -22,7 +22,7 @@ const Registro = () => {
   useEffect(() => {
     if (status === 'succeeded') {
       alert('Registro exitoso');
-      navigate('/');
+      navigate('/login'); // Redirigir al login después del registro exitoso
     }
   }, [status, navigate]);
 
@@ -61,7 +61,7 @@ const Registro = () => {
         </div>
         <div className="form-group">
           <label>Email:</label>
-          <input type="email" name="email" value={form.mail} onChange={handleChange} required />
+          <input type="email" name="email" value={form.email} onChange={handleChange} required />
         </div>
         <div className="form-group">
           <label>Usuario:</label>
@@ -69,7 +69,7 @@ const Registro = () => {
         </div>
         <div className="form-group">
           <label>Contraseña:</label>
-          <input type="password" name="password" value={form.pass} onChange={handleChange} required />
+          <input type="password" name="password" value={form.password} onChange={handleChange} required />
         </div>
         <button type="submit" className="auth-button">Registrar</button>
         {status === 'failed' && <p className="error-message">{error}</p>}

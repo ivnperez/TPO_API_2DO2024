@@ -23,6 +23,36 @@ import "swiper/css/scrollbar";
 import "swiper/css/autoplay";
 
 function Banner() {
+  const bannerTitleStyle = {
+    fontWeight: "bold",
+    letterSpacing: "1px",
+    lineHeight: "1.2", 
+    marginBottom: "20px", 
+    color: "#ffffff",
+  };
+
+  const buttonStyle = {
+    backgroundColor: "#0d6efd",
+    color: "#ffffff",
+    padding: "10px 20px",
+    borderRadius: "5px",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    textTransform: "uppercase",
+    border: "none",
+    transition: "background-color 0.3s ease, transform 0.3s ease",
+    marginTop: "15px",
+  };
+
+  const handleMouseEnter = (e) => {
+    e.target.style.backgroundColor = "#084298";
+    e.target.style.transform = "scale(1.05)";
+  };
+
+  const handleMouseLeave = (e) => {
+    e.target.style.backgroundColor = "#0d6efd";
+    e.target.style.transform = "scale(1)";
+  };
+
   return (
     <Swiper
       // install Swiper modules
@@ -32,7 +62,7 @@ function Banner() {
       navigation
       pagination={{ clickable: true }}
       scrollbar={{ draggable: true }}
-      autoplay={{ deelay: 1000 }}
+      autoplay={{ delay: 5000 }}
     >
       <SwiperSlide>
         <div className="swiper-slide">
@@ -40,12 +70,18 @@ function Banner() {
             <div className="row d-flex align-items-center">
               <div className="col-md-6">
                 <div className="banner-content">
-                  <h3 className="display-2 text-uppercase text-dark pb-5">
+                  <h3
+                    className="display-2 text-uppercase text-dark"
+                    style={bannerTitleStyle}
+                  >
                     El mejor servicio disponible 24/7.
                   </h3>
                   <Link
                     to="/Catalogo"
-                    className="btn btn-medium btn-dark text-uppercase btn-rounded-none"
+                    className="btn"
+                    style={buttonStyle}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                   >
                     Servicios Disponibles
                   </Link>
@@ -66,12 +102,18 @@ function Banner() {
             <div className="row d-flex align-items-center">
               <div className="col-md-6">
                 <div className="banner-content">
-                  <h3 className="display-2 text-uppercase text-dark pb-5">
+                  <h3
+                    className="display-2 text-uppercase text-dark"
+                    style={bannerTitleStyle}
+                  >
                     No pierdas el tiempo y dinero.
                   </h3>
                   <Link
                     to="/Catalogo"
-                    className="btn btn-medium btn-dark text-uppercase btn-rounded-none"
+                    className="btn"
+                    style={buttonStyle}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                   >
                     Servicios Disponibles
                   </Link>

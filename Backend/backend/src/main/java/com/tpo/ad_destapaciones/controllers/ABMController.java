@@ -34,6 +34,7 @@ public class ABMController {
 
     @PostMapping(value = "/ABM", consumes = "multipart/form-data")
     public ResponseEntity<Object> createProducto(@ModelAttribute ServicioDTO serviciodto) {
+        System.out.println("Datos recibidos: " + serviciodto);
         try {
             Servicio result = servicioService.createServicio(
                 serviciodto.getNombre(),
@@ -44,7 +45,7 @@ public class ABMController {
                 serviciodto.getTipo(),
                 serviciodto.getStock(),
                 serviciodto.getFlag_destacar()
-                );
+            );
             return ResponseEntity.created(URI.create("/catalogo/" + result.getId())).body(result);
         } catch (ServicioDuplicadoException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"message\":\"Servicio duplicado\"}");
@@ -52,6 +53,7 @@ public class ABMController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\":\"Error interno del servidor\"}");
         }
     }
+    
     
     @DeleteMapping("/ABM/{servicioId}")
     public ResponseEntity<Servicio> deleteServicio(@PathVariable Long servicioId){

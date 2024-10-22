@@ -1,33 +1,54 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'; //Ver de quitar el Async Thunk si no se usa
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+const initialState = {
+  servicios: [],
+  status: 'idle',
+  error: null,
+};
+
+// Thunks para confirmar la compra
 export const confirmarCompra = createAsyncThunk(
   'carrito/confirmarCompra',
   async (compraData, { getState, rejectWithValue }) => {
     const state = getState();
-    const usuarioId = compraData.id_usuario;
+    const token = state.auth.token;
 
-    if (!usuarioId) {
-      console.error('Error: usuarioId is undefined');
-      return rejectWithValue('Usuario no autenticado');
+    if (!token) {
+      console.error('Error: Usuario no autenticado.');
+      return rejectWithValue('Usuario no autenticado.');
     }
 
-    const url = 'http://localhost:3306/ventas';
+    console.log('Token utilizado para confirmar la compra:', token);
+    
+    const url = 'http://localhost:4002/ventas';
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(compraData)
+        body: JSON.stringify(compraData),
       });
 
+      // Agregar este log para verificar la respuesta completa antes de intentar parsearla como JSON
+      const text = await response.text();
+      console.log('Respuesta completa del servidor:', text);
+
       if (!response.ok) {
-        const errorData = await response.json();
+        // Intentar parsear el error como JSON en caso de que el backend devuelva un JSON con el mensaje de error
+        let errorData;
+        try {
+          errorData = JSON.parse(text);
+        } catch (e) {
+          throw new Error('Error inesperado en el servidor');
+        }
         throw new Error(errorData.message || 'No se pudo confirmar la compra');
       }
 
-      const data = await response.json();
+      // Si la respuesta es correcta, convertir a JSON
+      const data = JSON.parse(text);
       return data;
     } catch (error) {
       console.error('Error al confirmar la compra:', error.message);
@@ -36,12 +57,8 @@ export const confirmarCompra = createAsyncThunk(
   }
 );
 
-const initialState = {
-  servicios: [],
-  status: 'idle',
-  error: null,
-};
 
+// Slice para manejar el estado del carrito
 const carritoSlice = createSlice({
   name: 'carrito',
   initialState,
@@ -65,7 +82,7 @@ const carritoSlice = createSlice({
       }
     },
     eliminarTodoServicio: (state, action) => {
-      state.servicios = state.servicios.filter(servicio =>servicio.id !== action.payload);
+      state.servicios = state.servicios.filter(servicio => servicio.id !== action.payload);
     },
     vaciarCarrito: (state) => {
       state.servicios = [];
@@ -88,6 +105,9 @@ const carritoSlice = createSlice({
   }
 });
 
+// Exportar las acciones
 export const { agregarServicio, eliminarServicio, eliminarTodoServicio, vaciarCarrito } = carritoSlice.actions;
 
+// Exportar el reducer del slice
 export default carritoSlice.reducer;
+

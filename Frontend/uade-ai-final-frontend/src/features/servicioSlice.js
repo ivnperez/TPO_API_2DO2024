@@ -1,52 +1,101 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const urlServer2 = "http://localhost:3306/"; // URL del backend
+const urlServer2 = "http://localhost:4002/";
 
 // Thunks para operaciones asíncronas utilizando Fetch
 export const fetchServicios = createAsyncThunk(
   "servicios/fetchServicios",
-  async () => {
-    const response = await fetch(urlServer2 + "catalogo");
-    if (!response.ok) {
-      throw new Error("Error al obtener los Servicios.");
+  async (_, { getState, rejectWithValue }) => {
+    const state = getState();
+    const token = state.auth.token;
+
+    if (!token) {
+      console.error('Token no disponible. Por favor, inicia sesión.');
+      return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
     }
-    const data = await response.json();
-    return data.content; // Asegurándome de que se accede correctamente a la lista de Servicios
+
+    try {
+      const response = await fetch(`${urlServer2}catalogo`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Error al obtener los Servicios.");
+      }
+      const data = await response.json();
+      return data.content;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 export const fetchServicioByID = createAsyncThunk(
   "servicios/fetchServicioByID",
-  async (id) => {
-    const response = await fetch(`${urlServer2}catalogo/${id}`);
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error("El Servicio no existe.");
-      } else {
-        throw new Error("Error al obtener el Servicio.");
-      }
+  async (id, { getState, rejectWithValue }) => {
+    const state = getState();
+    const token = state.auth.token;
+
+    if (!token) {
+      console.error('Token no disponible. Por favor, inicia sesión.');
+      return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
     }
-    return await response.json();
+
+    try {
+      const response = await fetch(`${urlServer2}catalogo/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("El Servicio no existe.");
+        } else {
+          throw new Error("Error al obtener el Servicio.");
+        }
+      }
+      return await response.json();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 export const fetchServiciosDestacados = createAsyncThunk(
   "servicios/fetchServiciosDestacados",
-  async () => {
-    const response = await fetch(urlServer2 + "catalogo");
-    if (!response.ok) {
-      throw new Error("Error al obtener los Servicios.");
+  async (_, { getState, rejectWithValue }) => {
+    const state = getState();
+    const token = state.auth.token;
+
+    if (!token) {
+      console.error('Token no disponible. Por favor, inicia sesión.');
+      return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
     }
-    const data = await response.json();
-    return data.content.filter((Servicio) => Servicio.flag_destacar === true);
+
+    try {
+      const response = await fetch(`${urlServer2}catalogo`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Error al obtener los Servicios.");
+      }
+      const data = await response.json();
+      return data.content.filter((Servicio) => Servicio.flag_destacar === true);
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
+// Slice para manejar el estado de los servicios
 const servicioSlice = createSlice({
   name: "servicios",
   initialState: {
     items: [],
-    servicioseleccionado: null,
+    servicioSeleccionado: null,
     destacados: [],
     status: "idle",
     error: null,
@@ -63,10 +112,10 @@ const servicioSlice = createSlice({
       })
       .addCase(fetchServicios.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchServicioByID.fulfilled, (state, action) => {
-        state.servicioseleccionado = action.payload;
+        state.servicioSeleccionado = action.payload;
       })
       .addCase(fetchServiciosDestacados.fulfilled, (state, action) => {
         state.destacados = action.payload;

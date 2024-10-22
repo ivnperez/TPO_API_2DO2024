@@ -44,9 +44,15 @@ public class VentaController {
     @PostMapping("/ventas")
     public ResponseEntity<?> createVenta(@RequestBody VentaDTO ventaDTO) {
         try {
+            System.out.println("Datos de la venta recibidos: " + ventaDTO);
+            System.out.println("ID del usuario: " + ventaDTO.getId_user());
+            if (ventaDTO.getId_user() == null) {
+                throw new Exception("El ID del usuario no puede ser nulo");
+            }
             Venta savedVenta = ventaService.save(ventaDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedVenta);
         } catch (Exception e) {
+            System.out.println("Error al crear la venta: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

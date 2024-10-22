@@ -12,6 +12,7 @@ function Carrito({ children }) {
     const navigate = useNavigate();
     const serviciosCarrito = useSelector(state => state.carrito.servicios);
     const usuario = useSelector(state => state.auth.user);
+    const token = useSelector(state => state.auth.token);
     const [error, setError] = useState(null);
     const [isConfirming, setIsConfirming] = useState(false);
     
@@ -26,8 +27,8 @@ function Carrito({ children }) {
     }, 0);
 
     const precioTotalConDescuento = serviciosCarrito.reduce((total, servicio) => {
-        const precioDescuentoString = servicio.precioDescuento.toString().replace(/[^\d]+/g, '');
-        const precioDescuento = parseFloat(precioDescuentoString);
+        const precioDescuentoString = servicio.precioDescuento?.toString().replace(/[^\d]+/g, '');
+        const precioDescuento = parseFloat(precioDescuentoString || 0);
         return total + (precioDescuento * servicio.cantidad);
     }, 0);
 
@@ -37,22 +38,17 @@ function Carrito({ children }) {
             const modalElement = document.getElementById(modalId);
             if (modalElement) {
                 let modalInstance = window.bootstrap.Modal.getInstance(modalElement);
-                if (!modalInstance) {
-                    modalInstance = new window.bootstrap.Modal(modalElement);
-                }
                 if (modalInstance) {
-                    console.log(`Cerrando modal: ${modalId}`);
                     modalInstance.hide();
-                    modalElement.classList.remove('show');
-                    modalElement.setAttribute('aria-hidden', 'true');
-                    modalElement.style.display = 'none';
-                    document.body.classList.remove('modal-open');  
-                    document.querySelector('.modal-backdrop')?.remove(); 
-                } else {
-                    console.log(`No se encontró instancia de modal para: ${modalId}`);
                 }
-            } else {
-                console.log(`No se encontró el elemento modal: ${modalId}`);
+                modalElement.classList.remove('show');
+                modalElement.setAttribute('aria-hidden', 'true');
+                modalElement.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
             }
         });
     };
@@ -65,7 +61,7 @@ function Carrito({ children }) {
         dispatch(eliminarServicio(servicioId));
     };
 
-    const handleEliminarTodoservicio = (servicioId) => {
+    const handleEliminarTodoServicio = (servicioId) => {
         dispatch(eliminarTodoServicio(servicioId));
     };
 
@@ -74,19 +70,23 @@ function Carrito({ children }) {
     };
 
     const handleConfirmarCompra = () => {
-        console.log('Carrito actual antes de confirmar compra:', serviciosCarrito);
-        if (!usuario?.access_token) {
-            setError('Debe iniciar sesión para confirmar la compra');
+        console.log('Token actual:', token);
+        console.log('Usuario actual:', usuario);
+    
+        // Agrega un log para mostrar el objeto usuario completo
+        console.log('Contenido del usuario:', JSON.stringify(usuario, null, 2));
+    
+        if (!usuario || !usuario.id) {
+            console.error('El usuario no tiene un ID válido');
+            setError('El usuario no tiene un ID válido');
             return;
-        } else {
-            console.log('Usuario autenticado:', usuario);
-            setError(null);
         }
     
-        const usuarioId = usuario.id;
-        
+        const userId = usuario.id;
+        console.log('ID del usuario utilizado para la compra:', userId);
+    
         const compraData = {
-            id_usuario: usuarioId,
+            id_user: userId,
             detalles: serviciosCarrito.map(item => ({
                 id_servicio: item.id,
                 cantidad: item.cantidad
@@ -94,13 +94,13 @@ function Carrito({ children }) {
             total: precioTotalConDescuento
         };
     
-        console.log('Enviando datos de compra:', compraData);
+        console.log('Datos de la compra que se van a enviar:', JSON.stringify(compraData, null, 2));
     
         setIsConfirming(true);
         dispatch(confirmarCompra(compraData))
             .then((result) => {
                 if (result.type === 'carrito/confirmarCompra/fulfilled') {
-                    setError(null); 
+                    setError(null);
                     cerrarModales();
                     const confirmacionModalElement = document.getElementById('confirmacionCompra');
                     const confirmacionModalInstance = window.bootstrap.Modal.getOrCreateInstance(confirmacionModalElement);
@@ -112,49 +112,48 @@ function Carrito({ children }) {
                 }
             })
             .finally(() => {
-                setIsConfirming(false); 
+                setIsConfirming(false);
             });
     };
     
-
+    
+    
+    
+    
     const handleRedireccionarInicio = () => {
         handleVaciarCarrito();
         cerrarModales();
-        const confirmacionModalElement = document.getElementById('confirmacionCompra');
-        const confirmacionModalInstance = window.bootstrap.Modal.getInstance(confirmacionModalElement);
-        if (confirmacionModalInstance) {
-            console.log('Cerrando modal de confirmación');
-            confirmacionModalInstance.hide();
-        } else {
-            console.log('No se encontró instancia de modal de confirmación');
-        }
         navigate('/');
-    };
-
-    const handleCloseCheckoutModal = () => {
-        handleModalHide();
-        cerrarModales();
-    };
-
-    const handleModalHide = () => {
-        setError(null);
     };
 
     return (
         <div>
             {children}
-            <div className="modal fade" id="carritoModal" tabIndex="-1" data-bs-backdrop="false" aria-labelledby="carritoModalLabel" aria-hidden="true" onHide={handleModalHide}>
+            <div 
+                className="modal fade" 
+                id="carritoModal" 
+                tabIndex="-1" 
+                data-bs-backdrop="false" 
+                aria-labelledby="carritoModalLabel" 
+                aria-hidden="true"
+            >
                 <div className="modal-dialog modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="carritoModalLabel">Carrito de Compras</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={handleModalHide}></button>
+                            <button 
+                                type="button" 
+                                className="btn-close" 
+                                data-bs-dismiss="modal" 
+                                aria-label="Close" 
+                                onClick={cerrarModales}
+                            ></button>
                         </div>
                         <div className="modal-body">
                             {serviciosCarrito.map((servicio, index) => (
                                 <div key={index} className="d-flex align-items-center">
-                                    <img src={servicio.imagen} alt={servicio.nombre} className="img-thumbnail mr-3" style={{ width: "100px", marginRight: "10px" }} />
-                                    <div className="flex-grow-1" style={{ marginRight: '10px' }}>
+                                    <img src={servicio.imagen} alt={servicio.nombre} className="img-thumbnail mr-3" style={{ width: "100px" }} />
+                                    <div className="flex-grow-1">
                                         <p className="mb-0 texto-negro">{servicio.nombre}</p>
                                         <p className="mb-0 texto-negro">${servicio.precio}</p>
                                     </div>
@@ -167,65 +166,24 @@ function Carrito({ children }) {
                                             <FontAwesomeIcon icon={faPlus} />
                                         </button>
                                     </div>
-                                    <button className="btn btn-danger" onClick={() => handleEliminarTodoservicio(servicio.id)}>
+                                    <button className="btn btn-danger" onClick={() => handleEliminarTodoServicio(servicio.id)}>
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
                                 </div>
                             ))}
                         </div>
                         <div className="modal-footer d-flex flex-column align-items-start">
-                            <p className="texto-negro"> Total: ${precioTotal.toLocaleString()}</p>
-                            <p className="texto-negro"> Total con Descuento: ${precioTotalConDescuento.toLocaleString()}</p>
+                            <p className="texto-negro">Total: ${precioTotal.toLocaleString()}</p>
+                            <p className="texto-negro">Total con Descuento: ${precioTotalConDescuento.toLocaleString()}</p>
                         </div>
                         <div className="modal-footer texto-negro">
-                            <button type="button" className="btn btn-danger" onClick={handleVaciarCarrito} data-bs-dismiss="modal" disabled={serviciosCarrito.length === 0}>Borrar Carrito</button>
-                            <button type="button" className="btn btn-success" data-bs-target={usuario?.access_token ? "#checkoutCompra" : ""} data-bs-toggle={usuario?.access_token ? "modal" : ""} onClick={!usuario?.access_token ? () => setError('Debe iniciar sesión para confirmar la compra') : null} disabled={serviciosCarrito.length === 0}>Comprar</button>
+                            <button type="button" className="btn btn-danger" onClick={handleVaciarCarrito} disabled={serviciosCarrito.length === 0}>Borrar Carrito</button>
+                            <button type="button" className="btn btn-success" onClick={handleConfirmarCompra} disabled={serviciosCarrito.length === 0 || isConfirming}>Comprar</button>
                             {error && <div className="alert alert-danger mt-3 w-100">{error}</div>}
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div className="modal fade" id="checkoutCompra" data-bs-backdrop="static" aria-hidden="true" aria-labelledby="carritoModalLabel2" tabIndex="-1">
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title texto-negro" id="carritoModalLabel2">Checkout</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={handleCloseCheckoutModal}></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className='mb-3'>
-                                <p className="texto-negro">servicios</p>
-                            </div>
-                            {serviciosCarrito.map((servicio, index) => (
-                                <div key={index} className="d-flex align-items-center">
-                                <img src={servicio.imagen} alt={servicio.nombre} className="img-thumbnail mr-3" style={{ width: "100px", marginRight: "10px" }} />
-                                <div className="flex-grow-1" style={{ marginRight: '10px' }}>
-                                    <p className="mb-0 texto-negro">{servicio.nombre} (X{servicio.cantidad})</p>
-                                    <p className="mb-0 texto-negro">${servicio.precio}</p>
-                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="modal-footer d-flex flex-column align-items-start">
-                            <p className="texto-negro"> Total: ${precioTotal.toLocaleString()}</p>
-                            <p className="texto-negro"> Total con Descuento: ${precioTotalConDescuento.toLocaleString()}</p>
-                        </div>
-                        <div className="modal-footer texto-negro">
-                            <button 
-                                type="button" 
-                                className="btn btn-success" 
-                                onClick={handleConfirmarCompra} 
-                                disabled={serviciosCarrito.length === 0 || isConfirming}
-                            >
-                                Confirmar Compra
-                            </button>
-                            {error && <div className="alert alert-danger mt-3 w-100">{error}</div>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="modal fade" id="confirmacionCompra" data-bs-backdrop="static" aria-hidden="true" aria-labelledby="carritoModalLabel2" tabIndex="-1">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
@@ -236,7 +194,7 @@ function Carrito({ children }) {
                             <p className="texto-negro">Su Compra ha sido Completada</p>
                         </div>
                         <div className="modal-footer texto-negro">
-                            <button type="button" className="btn btn-success" onClick={handleRedireccionarInicio} data-bs-dismiss="modal">Volver al Inicio</button>
+                            <button type="button" className="btn btn-success" onClick={handleRedireccionarInicio}>Volver al Inicio</button>
                         </div>
                     </div>
                 </div>
@@ -246,3 +204,5 @@ function Carrito({ children }) {
 }
 
 export default Carrito;
+
+

@@ -1,113 +1,125 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const urlServer2 = "http://localhost:3306/"; // Esta es el puerto del back
+const urlServer2 = "http://localhost:4002/";
 
-// Funciones para operaciones asíncronas utilizando Fetch
-const getServicios = () => {
-  return fetch(urlServer2 + 'catalogo')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Error al obtener los Servicios.");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Data getAll:", data);
-      return data.content; 
-    });
-};
-
-const agregarServicio = (servicio) => {
-  const formData = new FormData();
-  formData.append("nombre", servicio.nombre);
-  formData.append("descripcion", servicio.descripcion);
-  formData.append("imagen", servicio.imagen);
-  formData.append("precio", servicio.precio);
-  formData.append("descuento", servicio.descuento || 0);
-  formData.append("tipo", servicio.tipo);
-  formData.append("stock", servicio.stock);
-  formData.append("flag_destacar", servicio.flag_destacar);
-
-  const token = localStorage.getItem('accessToken'); // ELIMINAR LOCAL STORAGE
-  console.log('Token:', token); // Log para verificar el token
-
-  return fetch(`${urlServer2}abm`, {
-    method: "POST",
-    headers: {
-      'Authorization': `Bearer ${token}`, // Incluir el token en los headers
-    },
-    body: formData
-  })
-    .then((response) => {
-      if (!response.ok) {
-        return response.json().then(error => {
-          throw new Error(error.message || "Error al agregar el servicio.");
-        });
-      }
-      return response.json();
-    })
-    .then((data) => {
-      return data;
-    })
-    .catch((error) => {
-      throw error;
-    });
-};
-
-const eliminarServicio = (id) => {
-  const token = localStorage.getItem('accessToken'); // ELIMINAR LOCAL STORAGE TIENE QUE IR COMO EL CARRITO SLICE
-  return fetch(`${urlServer2}abm/${id}`, {
-    method: "DELETE",
-    headers: {
-      'Authorization': `Bearer ${token}`, 
-    },
-  }).then(response => response.json());
-};
-
-const modificarServicio = (servicio) => {
-  const token = localStorage.getItem('accessToken'); // ELIMINAR LOCAL STORAGE TIENE QUE IR COMO EL CARRITO SLICE
-
-  return fetch(`${urlServer2}abm`, {
-    method: "PUT",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`, // Incluir el token en los headers
-    },
-    body: JSON.stringify({
-      id: servicio.id,
-      nombre: servicio.nombre,
-      descripcion: servicio.descripcion,
-      precio: servicio.precio,
-      descuento: servicio.descuento || 0, // Default value if descuento is null
-      tipo: servicio.tipo,
-      stock: servicio.stock,
-      flag_destacar: servicio.flag_destacar
-    })
-  }).then(response => response.json());
-};
-
-// eliminar esto de thunk no debe ser asi
+// Funciones para operaciones asíncronas
 export const fetchServicios = createAsyncThunk('servicios/fetchServicios', async () => {
-  const response = await getServicios();
-  return response;
+  const response = await fetch(urlServer2 + 'catalogo');
+  if (!response.ok) {
+    throw new Error("Error al obtener los Servicios.");
+  }
+  const data = await response.json();
+  return data.content;
 });
 
-export const createServicio = createAsyncThunk('servicios/createservicio', async (nuevoServicio) => {
-  const response = await agregarservicio(nuevoServicio);
-  return response;
+export const createServicio = createAsyncThunk('servicios/createServicio', async (nuevoServicio, { getState, rejectWithValue }) => {
+  const state = getState();
+  const token = state.auth.token;
+
+  if (!token) {
+    return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
+  }
+
+  // Agrega un log para verificar el token
+  console.log('Token utilizado para crear el servicio:', token);
+
+  const formData = new FormData();
+  formData.append("nombre", nuevoServicio.nombre);
+  formData.append("descripcion", nuevoServicio.descripcion);
+  formData.append("imagen", nuevoServicio.imagen);
+  formData.append("precio", nuevoServicio.precio);
+  formData.append("descuento", nuevoServicio.descuento || 0);
+  formData.append("tipo", nuevoServicio.tipo);
+  formData.append("stock", nuevoServicio.stock);
+  formData.append("flag_destacar", nuevoServicio.flag_destacar);
+
+  try {
+    const response = await fetch(`${urlServer2}ABM`, {
+      method: "POST",
+      headers: {
+        'Authorization': `Bearer ${token}`, // Verifica que el encabezado sea correcto
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error('Error al agregar el servicio. Respuesta del servidor:', errorMessage);
+      throw new Error(errorMessage || "Error al agregar el servicio.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error al realizar la solicitud para crear el servicio:', error);
+    return rejectWithValue(error.message);
+  }
 });
 
-export const deleteServicio = createAsyncThunk('servicios/deleteServicio', async (id) => {
-  await eliminarServicio(id);
-  return id;
+export const updateServicio = createAsyncThunk('servicios/updateServicio', async (servicio, { getState, rejectWithValue }) => {
+  const state = getState();
+  const token = state.auth.token;
+
+  if (!token) {
+    return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
+  }
+
+  try {
+    const response = await fetch(`${urlServer2}ABM/${servicio.get("id")}`, {
+      method: "PUT",
+      headers: {
+        'Authorization': `Bearer ${token}`, // No se especifica 'Content-Type' para que el navegador establezca el tipo multipart/form-data
+      },
+      body: servicio // Enviar FormData directamente
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error('Error al actualizar el servicio. Respuesta del servidor:', errorMessage);
+      throw new Error(errorMessage || "Error al modificar el servicio.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error al realizar la solicitud para actualizar el servicio:', error);
+    return rejectWithValue(error.message);
+  }
 });
 
-export const updateServicio = createAsyncThunk('servicios/updateServicio', async (servicio) => {
-  const response = await modificarServicio(servicio);
-  return response;
+
+
+export const deleteServicio = createAsyncThunk('servicios/deleteServicio', async (id, { getState, rejectWithValue }) => {
+  const state = getState();
+  const token = state.auth.token;
+
+  if (!token) {
+    return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
+  }
+
+  // Agrega un log para verificar el token
+  console.log('Token utilizado para eliminar el servicio:', token);
+
+  try {
+    const response = await fetch(`${urlServer2}ABM/${id}`, {
+      method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${token}`, // Verifica que el encabezado sea correcto
+      },
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error('Error al eliminar el servicio. Respuesta del servidor:', errorMessage);
+      throw new Error("Error al eliminar el servicio.");
+    }
+
+    return id;
+  } catch (error) {
+    console.error('Error al realizar la solicitud para eliminar el servicio:', error);
+    return rejectWithValue(error.message);
+  }
 });
 
-// Slice
+// Slice para manejar el estado
 const abmSlice = createSlice({
   name: 'servicios',
   initialState: {
@@ -137,10 +149,12 @@ const abmSlice = createSlice({
       })
       .addCase(updateServicio.fulfilled, (state, action) => {
         const index = state.items.findIndex(item => item.id === action.payload.id);
-        state.items[index] = action.payload;
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
       });
   },
 });
 
+// Exportar el slice y las acciones necesarias
 export default abmSlice.reducer;
-

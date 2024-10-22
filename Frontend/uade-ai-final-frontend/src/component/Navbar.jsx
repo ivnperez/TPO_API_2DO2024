@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import imgLogo from "../images/main-logo.png";
 import "bootstrap/dist/css/bootstrap.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,7 +16,9 @@ import { logout } from "../features/auth/authSlice";
 
 const Navbar = () => {
   const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -25,8 +27,12 @@ const Navbar = () => {
 
   // Estilos para la barra de navegación
   const navbarStyle = {
-    backgroundColor: "#1c1c1c", // Color oscuro para el fondo
-    color: "#fff", // Color blanco para el texto
+    backgroundColor: "#2e3b4e",
+    color: "#ffffff",
+    borderBottom: "2px solid #0d6efd",
+    fontWeight: "bold",
+    height: "130px", // Altura ajustada
+    padding: "0.2px 0", // Reducir el padding
   };
 
   return (
@@ -94,7 +100,7 @@ const Navbar = () => {
                   <div className="user-items ps-5">
                     <ul className="d-flex justify-content-end align-items-center list-unstyled">
                       <li className="pe-3">
-                        {user ? (
+                        {token ? (
                           <button onClick={handleLogout} className="btn">
                             <FontAwesomeIcon
                               icon={faSignOutAlt}
@@ -133,4 +139,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

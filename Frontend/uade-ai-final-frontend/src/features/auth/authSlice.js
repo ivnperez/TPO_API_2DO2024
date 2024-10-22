@@ -17,7 +17,20 @@ export const login = createAsyncThunk('auth/login', async (credentials, { reject
     const data = await response.json();
     console.log('Response data:', data);
     console.log('Token:', data.access_token);
-    return data;
+
+    // Verifica que el ID y el email estén presentes en la respuesta
+    if (!data.id || !data.email) {
+      throw new Error('No se recibió el ID o el email en la respuesta');
+    }
+
+    return {
+      id: data.id,
+      email: data.email,
+      usuario: data.usuario,
+      nombre: data.nombre,
+      rol: data.rol,
+      access_token: data.access_token,
+    };
   } catch (error) {
     return rejectWithValue(error.message);
   }
@@ -42,7 +55,16 @@ export const register = createAsyncThunk(
       }
 
       const data = await response.json();
-      return data;
+      console.log('Registro exitoso:', data);
+
+      return {
+        id: data.id,
+        email: data.email,
+        usuario: data.usuario,
+        nombre: data.nombre,
+        rol: data.rol,
+        access_token: data.access_token,
+      };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -53,12 +75,14 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: null,
+    token: null,
     status: 'idle',
     error: null,
   },
   reducers: {
     logout: (state) => {
       state.user = null;
+      state.token = null;
       state.status = 'idle';
       state.error = null;
     }
@@ -70,7 +94,16 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload;
+        state.user = {
+          id: action.payload.id,
+          email: action.payload.email,
+          usuario: action.payload.usuario,
+          nombre: action.payload.nombre,
+          rol: action.payload.rol,
+        };
+        state.token = action.payload.access_token;
+        console.log('Usuario guardado:', state.user);
+        console.log('Token guardado:', state.token);
       })
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed';
@@ -81,7 +114,15 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload;
+        state.user = {
+          id: action.payload.id,
+          email: action.payload.email,
+          usuario: action.payload.usuario,
+          nombre: action.payload.nombre,
+          rol: action.payload.rol,
+        };
+        state.token = action.payload.access_token;
+        console.log('Registro completado. Usuario guardado:', state.user);
       })
       .addCase(register.rejected, (state, action) => {
         state.status = 'failed';
