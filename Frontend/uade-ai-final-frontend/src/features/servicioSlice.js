@@ -11,7 +11,7 @@ export const fetchServicios = createAsyncThunk(
       const token = state.auth.token;
 
       const headers = token
-        ? { 'Authorization': `Bearer ${token}` }
+        ? { Authorization: `Bearer ${token}` }
         : {}; // Solo agrega el token si está disponible
 
       const response = await fetch(`${urlServer2}catalogo`, { headers });
@@ -28,7 +28,6 @@ export const fetchServicios = createAsyncThunk(
   }
 );
 
-
 export const fetchServicioByID = createAsyncThunk(
   "servicios/fetchServicioByID",
   async (id, { getState, rejectWithValue }) => {
@@ -37,7 +36,7 @@ export const fetchServicioByID = createAsyncThunk(
       const token = state.auth.token;
 
       const headers = token
-        ? { 'Authorization': `Bearer ${token}` }
+        ? { Authorization: `Bearer ${token}` }
         : {}; // Solo agrega el token si está disponible
 
       const response = await fetch(`${urlServer2}catalogo/${id}`, { headers });
@@ -57,7 +56,6 @@ export const fetchServicioByID = createAsyncThunk(
   }
 );
 
-
 export const fetchServiciosDestacados = createAsyncThunk(
   "servicios/fetchServiciosDestacados",
   async (_, { getState, rejectWithValue }) => {
@@ -65,14 +63,14 @@ export const fetchServiciosDestacados = createAsyncThunk(
     const token = state.auth.token;
 
     if (!token) {
-      console.error('Token no disponible. Por favor, inicia sesión.');
-      return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
+      console.error("Token no disponible. Por favor, inicia sesión.");
+      return rejectWithValue("Token no disponible. Por favor, inicia sesión.");
     }
 
     try {
       const response = await fetch(`${urlServer2}catalogo`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
@@ -80,6 +78,34 @@ export const fetchServiciosDestacados = createAsyncThunk(
       }
       const data = await response.json();
       return data.content.filter((Servicio) => Servicio.flag_destacar === true);
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Thunk para crear una nueva solicitud de servicio
+export const crearSolicitud = createAsyncThunk(
+  "servicios/crearSolicitud",
+  async (solicitudData, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token;
+
+      const response = await fetch(`${urlServer2}solicitudes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify(solicitudData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al crear la solicitud.");
+      }
+
+      return await response.json();
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -95,8 +121,15 @@ const servicioSlice = createSlice({
     destacados: [],
     status: "idle",
     error: null,
+    solicitudModalOpen: false, // Nuevo estado para el modal
+    solicitudStatus: "idle",
+    solicitudError: null,
   },
-  reducers: {},
+  reducers: {
+    toggleSolicitudModal: (state) => {
+      state.solicitudModalOpen = !state.solicitudModalOpen;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchServicios.pending, (state) => {
@@ -115,9 +148,19 @@ const servicioSlice = createSlice({
       })
       .addCase(fetchServiciosDestacados.fulfilled, (state, action) => {
         state.destacados = action.payload;
+      })
+      .addCase(crearSolicitud.pending, (state) => {
+        state.solicitudStatus = "loading";
+      })
+      .addCase(crearSolicitud.fulfilled, (state) => {
+        state.solicitudStatus = "succeeded";
+      })
+      .addCase(crearSolicitud.rejected, (state, action) => {
+        state.solicitudStatus = "failed";
+        state.solicitudError = action.payload;
       });
   },
 });
 
+export const { toggleSolicitudModal } = servicioSlice.actions;
 export default servicioSlice.reducer;
-
