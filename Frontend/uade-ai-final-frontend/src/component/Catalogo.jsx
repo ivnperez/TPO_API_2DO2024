@@ -2,24 +2,25 @@ import React, { useEffect, useState } from "react";
 import { getServicios } from "../services/Servicios";
 import { getFiltros, getServiciosFiltros } from "../services/Filtros";
 import "../css/Catalogo.css";
-import DetalleServicio from "./DetalleServicio.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { agregarServicio } from "../features/carritoSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Modal from "./Modal";
 
 function Catalogo() {
   const [Servicios, setServicios] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
-  const [Servicioseleccionado, setServicioseleccionado] = useState(null);
   const ServiciosPorPagina = 3;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [filtros, setFiltros] = useState({
-    tipos: [],
-  });
+  const [filtros, setFiltros] = useState({ tipos: [] });
   const [ServiciosFiltrados, setServiciosFiltrados] = useState([]);
   const [tiposSeleccionados, setTiposSeleccionados] = useState([]);
+
+  const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal
+  const token = useSelector((state) => state.auth.token); // Obtenemos el token del estado global
+  const usuarioLogueado = !!token; // Booleano para verificar si está logueado
 
   useEffect(() => {
     getServicios()
@@ -69,14 +70,6 @@ function Catalogo() {
     setPaginaActual(1);
   };
 
-  const abrirDetalleServicio = (Servicio) => {
-    setServicioseleccionado(Servicio);
-  };
-
-  const cerrarDetalleServicio = () => {
-    setServicioseleccionado(null);
-  };
-
   const ServiciosPaginaActual = ServiciosFiltrados.slice(
     (paginaActual - 1) * ServiciosPorPagina,
     paginaActual * ServiciosPorPagina
@@ -86,13 +79,19 @@ function Catalogo() {
     setPaginaActual(numeroPagina);
   };
 
-  const MantenerMovimientoCarrito = (e, Servicio) => {
-    e.preventDefault();
-    dispatch(agregarServicio({ ...Servicio, cantidad: 1 }));
-  };
-
   const handleCardClick = (id) => {
     navigate(`/Catalogo/${id}`);
+  };
+
+  const handleAgregarCarrito = (e, Servicio) => {
+    e.stopPropagation(); // Detener propagación del clic hacia la tarjeta
+
+    if (!usuarioLogueado) {
+      setShowModal(true); // Mostrar modal si no está logueado
+      return;
+    }
+
+    dispatch(agregarServicio({ ...Servicio, cantidad: 1 })); // Agregar al carrito si está logueado
   };
 
   return (
@@ -133,7 +132,11 @@ function Catalogo() {
               className="card"
               onClick={() => handleCardClick(product.id)}
             >
-              <img src={product.imagen} className="card-img-top" alt={product.nombre} />
+              <img
+                src={product.imagen}
+                className="card-img-top"
+                alt={product.nombre}
+              />
               <div className="card-content">
                 <div className="card-body">
                   <h5 className="card-title">{product.nombre}</h5>
@@ -149,7 +152,7 @@ function Catalogo() {
                 <div className="card-footer">
                   <button
                     className="btn btn-primary"
-                    onClick={(e) => MantenerMovimientoCarrito(e, product)}
+                    onClick={(e) => handleAgregarCarrito(e, product)}
                   >
                     Agregar al carrito
                   </button>
@@ -160,32 +163,35 @@ function Catalogo() {
         </div>
         <div className="pagination-container">
           <div className="pagination">
-            {[
-              ...Array(
-                Math.ceil(ServiciosFiltrados.length / ServiciosPorPagina)
-              ).keys(),
-            ].map((numero) => (
-              <button
-                key={numero + 1}
-                onClick={() => cambiarPagina(numero + 1)}
-                className={`btn btn-outline-primary ${
-                  numero + 1 === paginaActual ? "active" : ""
-                }`}
-              >
-                {numero + 1}
-              </button>
-            ))}
+            {[...Array(Math.ceil(ServiciosFiltrados.length / ServiciosPorPagina)).keys()].map(
+              (numero) => (
+                <button
+                  key={numero + 1}
+                  onClick={() => cambiarPagina(numero + 1)}
+                  className={`btn btn-outline-primary ${
+                    numero + 1 === paginaActual ? "active" : ""
+                  }`}
+                >
+                  {numero + 1}
+                </button>
+              )
+            )}
           </div>
         </div>
-        {Servicioseleccionado && (
-          <DetalleServicio
-            Servicio={Servicioseleccionado}
-            onClose={cerrarDetalleServicio}
-          />
-        )}
       </div>
+
+      {/* Modal */}
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        title="Acción no permitida"
+      >
+        <p>Debe iniciar sesión para agregar este servicio al carrito.</p>
+      </Modal>
     </div>
   );
 }
 
 export default Catalogo;
+
+

@@ -6,23 +6,20 @@ const urlServer2 = "http://localhost:4002/";
 export const fetchServicios = createAsyncThunk(
   "servicios/fetchServicios",
   async (_, { getState, rejectWithValue }) => {
-    const state = getState();
-    const token = state.auth.token;
-
-    if (!token) {
-      console.error('Token no disponible. Por favor, inicia sesión.');
-      return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
-    }
-
     try {
-      const response = await fetch(`${urlServer2}catalogo`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const state = getState();
+      const token = state.auth.token;
+
+      const headers = token
+        ? { 'Authorization': `Bearer ${token}` }
+        : {}; // Solo agrega el token si está disponible
+
+      const response = await fetch(`${urlServer2}catalogo`, { headers });
+
       if (!response.ok) {
         throw new Error("Error al obtener los Servicios.");
       }
+
       const data = await response.json();
       return data.content;
     } catch (error) {
@@ -31,23 +28,20 @@ export const fetchServicios = createAsyncThunk(
   }
 );
 
+
 export const fetchServicioByID = createAsyncThunk(
   "servicios/fetchServicioByID",
   async (id, { getState, rejectWithValue }) => {
-    const state = getState();
-    const token = state.auth.token;
-
-    if (!token) {
-      console.error('Token no disponible. Por favor, inicia sesión.');
-      return rejectWithValue('Token no disponible. Por favor, inicia sesión.');
-    }
-
     try {
-      const response = await fetch(`${urlServer2}catalogo/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const state = getState();
+      const token = state.auth.token;
+
+      const headers = token
+        ? { 'Authorization': `Bearer ${token}` }
+        : {}; // Solo agrega el token si está disponible
+
+      const response = await fetch(`${urlServer2}catalogo/${id}`, { headers });
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error("El Servicio no existe.");
@@ -55,12 +49,14 @@ export const fetchServicioByID = createAsyncThunk(
           throw new Error("Error al obtener el Servicio.");
         }
       }
+
       return await response.json();
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
+
 
 export const fetchServiciosDestacados = createAsyncThunk(
   "servicios/fetchServiciosDestacados",

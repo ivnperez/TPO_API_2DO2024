@@ -25,6 +25,16 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const handleAbrirCarrito = () => {
+    const carritoModalElement = document.getElementById("carritoModal");
+    if (carritoModalElement) {
+      const modalInstance = window.bootstrap.Modal.getOrCreateInstance(
+        carritoModalElement
+      );
+      modalInstance.show();
+    }
+  };
+
   // Estilos para la barra de navegación
   const navbarStyle = {
     backgroundColor: "#2e3b4e",
@@ -117,8 +127,7 @@ const Navbar = () => {
                         <button
                           type="button"
                           className="btn"
-                          data-bs-toggle="modal"
-                          data-bs-target="#carritoModal"
+                          onClick={handleAbrirCarrito}
                         >
                           <FontAwesomeIcon
                             icon={faCartShopping}
@@ -139,3 +148,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

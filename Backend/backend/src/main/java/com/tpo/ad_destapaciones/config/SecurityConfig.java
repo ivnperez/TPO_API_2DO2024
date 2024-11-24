@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers("/catalogo/**").permitAll() 
                 .requestMatchers("/api/v1/ventas/**").authenticated()
                 .requestMatchers("/ABM/**").permitAll() 
+                .requestMatchers("/solicitudes/**").permitAll() 
                 .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authenticationProvider(authenticationProvider)
