@@ -7,6 +7,7 @@ import {
   eliminarServicio,
   eliminarTodoServicio,
   vaciarCarrito,
+  confirmarCompra,
 } from "../features/carritoSlice";
 import Modal from "./Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,10 +17,10 @@ function Carrito({ children }) {
   const dispatch = useDispatch();
   const serviciosCarrito = useSelector((state) => state.carrito.servicios);
   const usuario = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token); // Obtener el token desde Redux
   const [error, setError] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [showSolicitudModal, setShowSolicitudModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // Modal de confirmación
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
   const [comentario, setComentario] = useState("");
@@ -56,84 +57,71 @@ function Carrito({ children }) {
     setComentario("");
   };
 
-  const handleConfirmarCompra = async () => {
+  const handleCerrarConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handleConfirmarCompra = () => {
     if (!usuario || !usuario.id) {
       alert("Debe iniciar sesión para completar la compra.");
       return;
     }
 
-    if (!token) {
-      console.error("Error: Token no disponible.");
-      setError("Error de autenticación. Por favor, inicie sesión nuevamente.");
-      return;
-    }
-
-    setIsConfirming(true);
-
-    // Crear Solicitud de Servicio
     const solicitudData = {
       direccion,
       telefono,
       comentario,
-      fechaInicio: new Date().toISOString().split("T")[0], // Fecha actual
-      fechaFin: new Date().toISOString().split("T")[0], // Ajustar si es necesario
+      fechaInicio: new Date().toISOString().split("T")[0], // Fecha de inicio actual
+      fechaFin: new Date().toISOString().split("T")[0], // Ajusta según sea necesario
       usuarioId: usuario.id,
-      servicioId: serviciosCarrito[0]?.id, // Tomar el ID del primer servicio
+      servicioId: serviciosCarrito[0]?.id, // Usar el ID del primer servicio en el carrito
     };
 
-    try {
-      const solicitudResponse = await fetch("http://localhost:4002/solicitudes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(solicitudData),
+    setIsConfirming(true);
+
+    // Crear solicitud y luego confirmar la compra
+    fetch("http://localhost:4002/solicitudes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(solicitudData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Error al crear la solicitud.");
+        }
+        return response.json();
+      })
+      .then(() => {
+        // Confirmar compra
+        const compraData = {
+          id_user: usuario.id,
+          detalles: serviciosCarrito.map((item) => ({
+            id_servicio: item.id,
+            cantidad: item.cantidad,
+          })),
+          total: precioTotalConDescuento,
+        };
+
+        dispatch(confirmarCompra(compraData))
+          .then(() => {
+            setShowConfirmModal(true); // Mostrar modal de confirmación
+            handleCerrarSolicitudModal();
+            dispatch(vaciarCarrito()); // Vaciar carrito después de la compra
+          })
+          .catch((error) => {
+            console.error("Error al confirmar la compra:", error);
+            setError("Error al confirmar la compra. Intente nuevamente.");
+          });
+      })
+      .catch((error) => {
+        console.error("Error al crear la solicitud:", error);
+        setError("Error al crear la solicitud. Intente nuevamente.");
+      })
+      .finally(() => {
+        setIsConfirming(false);
       });
-
-      if (!solicitudResponse.ok) {
-        throw new Error("Error al crear la solicitud.");
-      }
-
-      const solicitudResult = await solicitudResponse.json();
-      console.log("Solicitud creada:", solicitudResult);
-
-      // Confirmar Compra/Venta
-      const compraData = {
-        id_user: usuario.id,
-        detalles: serviciosCarrito.map((item) => ({
-          id_servicio: item.id,
-          cantidad: item.cantidad,
-        })),
-        total: precioTotalConDescuento,
-      };
-
-      const compraResponse = await fetch("http://localhost:4002/ventas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(compraData),
-      });
-
-      if (!compraResponse.ok) {
-        throw new Error("Error al confirmar la compra.");
-      }
-
-      const compraResult = await compraResponse.json();
-      console.log("Compra confirmada:", compraResult);
-
-      // Limpiar carrito y cerrar modal
-      alert("Compra y solicitud creadas exitosamente.");
-      dispatch(vaciarCarrito());
-      handleCerrarSolicitudModal();
-    } catch (error) {
-      console.error(error);
-      setError("Error al procesar la solicitud o compra. Intente nuevamente.");
-    } finally {
-      setIsConfirming(false);
-    }
   };
 
   return (
@@ -266,6 +254,15 @@ function Carrito({ children }) {
             Confirmar
           </button>
         </form>
+      </Modal>
+
+      {/* Modal de Confirmación */}
+      <Modal
+        show={showConfirmModal}
+        onClose={handleCerrarConfirmModal}
+        title="Confirmación Exitosa"
+      >
+        <p>El pedido del servicio se realizó con éxito.</p>
       </Modal>
     </div>
   );
