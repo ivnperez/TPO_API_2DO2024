@@ -7,9 +7,8 @@ import {
   eliminarServicio,
   eliminarTodoServicio,
   vaciarCarrito,
-  confirmarCompra,
 } from "../features/carritoSlice";
-import Modal from "./Modal"; // Asegúrate de que este componente exista
+import Modal from "./Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/Carrito.css";
 
@@ -17,7 +16,7 @@ function Carrito({ children }) {
   const dispatch = useDispatch();
   const serviciosCarrito = useSelector((state) => state.carrito.servicios);
   const usuario = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector((state) => state.auth.token); // Obtener el token desde Redux
   const [error, setError] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [showSolicitudModal, setShowSolicitudModal] = useState(false);
@@ -30,30 +29,24 @@ function Carrito({ children }) {
   }, [serviciosCarrito]);
 
   const precioTotal = serviciosCarrito.reduce((total, servicio) => {
-    const precioString = servicio.precio.toString().replace(/[^\d]+/g, "");
-    const precio = parseFloat(precioString);
+    const precio = parseFloat(servicio.precio || 0);
     return total + precio * servicio.cantidad;
   }, 0);
 
   const precioTotalConDescuento = serviciosCarrito.reduce((total, servicio) => {
-    const precioDescuentoString = servicio.precioDescuento
-      ?.toString()
-      .replace(/[^\d]+/g, "");
-    const precioDescuento = parseFloat(precioDescuentoString || 0);
+    const precioDescuento = parseFloat(servicio.precioDescuento || servicio.precio || 0);
     return total + precioDescuento * servicio.cantidad;
   }, 0);
 
   const handleAbrirSolicitudModal = () => {
-    setShowSolicitudModal(true);
-    // Cerrar el modal del carrito al abrir el de solicitud
     const carritoModalElement = document.getElementById("carritoModal");
     if (carritoModalElement) {
-      carritoModalElement.classList.remove("show");
-      carritoModalElement.style.display = "none";
-      document.body.classList.remove("modal-open");
-      const backdrop = document.querySelector(".modal-backdrop");
-      if (backdrop) backdrop.remove();
+      const modalInstance = window.bootstrap.Modal.getInstance(carritoModalElement);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
     }
+    setShowSolicitudModal(true);
   };
 
   const handleCerrarSolicitudModal = () => {
@@ -63,40 +56,84 @@ function Carrito({ children }) {
     setComentario("");
   };
 
-  const handleConfirmarCompra = () => {
+  const handleConfirmarCompra = async () => {
     if (!usuario || !usuario.id) {
       alert("Debe iniciar sesión para completar la compra.");
       return;
     }
 
-    const compraData = {
-      id_user: usuario.id,
-      detalles: serviciosCarrito.map((item) => ({
-        id_servicio: item.id,
-        cantidad: item.cantidad,
-      })),
-      total: precioTotalConDescuento,
-      solicitud: {
-        direccion,
-        telefono,
-        comentario,
-      },
-    };
+    if (!token) {
+      console.error("Error: Token no disponible.");
+      setError("Error de autenticación. Por favor, inicie sesión nuevamente.");
+      return;
+    }
 
     setIsConfirming(true);
-    dispatch(confirmarCompra(compraData))
-      .then((result) => {
-        if (result.type === "carrito/confirmarCompra/fulfilled") {
-          alert("Compra confirmada con éxito.");
-          dispatch(vaciarCarrito());
-          handleCerrarSolicitudModal();
-        } else {
-          setError("Error al confirmar la compra. Intente nuevamente.");
-        }
-      })
-      .finally(() => {
-        setIsConfirming(false);
+
+    // Crear Solicitud de Servicio
+    const solicitudData = {
+      direccion,
+      telefono,
+      comentario,
+      fechaInicio: new Date().toISOString().split("T")[0], // Fecha actual
+      fechaFin: new Date().toISOString().split("T")[0], // Ajustar si es necesario
+      usuarioId: usuario.id,
+      servicioId: serviciosCarrito[0]?.id, // Tomar el ID del primer servicio
+    };
+
+    try {
+      const solicitudResponse = await fetch("http://localhost:4002/solicitudes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(solicitudData),
       });
+
+      if (!solicitudResponse.ok) {
+        throw new Error("Error al crear la solicitud.");
+      }
+
+      const solicitudResult = await solicitudResponse.json();
+      console.log("Solicitud creada:", solicitudResult);
+
+      // Confirmar Compra/Venta
+      const compraData = {
+        id_user: usuario.id,
+        detalles: serviciosCarrito.map((item) => ({
+          id_servicio: item.id,
+          cantidad: item.cantidad,
+        })),
+        total: precioTotalConDescuento,
+      };
+
+      const compraResponse = await fetch("http://localhost:4002/ventas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(compraData),
+      });
+
+      if (!compraResponse.ok) {
+        throw new Error("Error al confirmar la compra.");
+      }
+
+      const compraResult = await compraResponse.json();
+      console.log("Compra confirmada:", compraResult);
+
+      // Limpiar carrito y cerrar modal
+      alert("Compra y solicitud creadas exitosamente.");
+      dispatch(vaciarCarrito());
+      handleCerrarSolicitudModal();
+    } catch (error) {
+      console.error(error);
+      setError("Error al procesar la solicitud o compra. Intente nuevamente.");
+    } finally {
+      setIsConfirming(false);
+    }
   };
 
   return (
@@ -133,7 +170,7 @@ function Carrito({ children }) {
                   />
                   <div className="flex-grow-1">
                     <p className="mb-0 texto-negro">{servicio.nombre}</p>
-                    <p className="mb-0 texto-negro">${servicio.precio}</p>
+                    <p className="mb-0 texto-negro">Precio: ${servicio.precio}</p>
                   </div>
                   <div className="d-flex align-items-center me-2">
                     <button
@@ -163,9 +200,7 @@ function Carrito({ children }) {
             </div>
             <div className="modal-footer d-flex flex-column align-items-start">
               <p className="texto-negro">Total: ${precioTotal.toLocaleString()}</p>
-              <p className="texto-negro">
-                Total con Descuento: ${precioTotalConDescuento.toLocaleString()}
-              </p>
+              <p className="texto-negro">Total con Descuento: ${precioTotalConDescuento.toLocaleString()}</p>
             </div>
             <div className="modal-footer texto-negro">
               <button

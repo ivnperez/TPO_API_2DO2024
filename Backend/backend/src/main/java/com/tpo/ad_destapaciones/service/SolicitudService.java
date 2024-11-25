@@ -29,28 +29,32 @@ public class SolicitudService {
 
     // Crear una nueva solicitud
     public SolicitudServicioDTO crearSolicitud(SolicitudServicioDTO solicitudDTO) throws Exception {
-        SolicitudServicio solicitud = new SolicitudServicio();
-
-        solicitud.setDireccion(solicitudDTO.getDireccion());
-        solicitud.setTelefono(solicitudDTO.getTelefono());
-        solicitud.setComentario(solicitudDTO.getComentario());
-        solicitud.setFechaInicio(solicitudDTO.getFechaInicio());
-        solicitud.setFechaFin(solicitudDTO.getFechaFin());
-
-        // Obtener y asignar el servicio desde el repositorio
+        // Buscar usuario por ID
+        User usuario = userRepository.findById(solicitudDTO.getUsuarioId())
+                .orElseThrow(() -> new Exception("Usuario no encontrado"));
+    
+        // Buscar servicio por ID
         Servicio servicio = servicioRepository.findById(solicitudDTO.getServicioId())
-                .orElseThrow(() -> new Exception("Servicio con ID " + solicitudDTO.getServicioId() + " no encontrado"));
-        solicitud.setServicio(servicio);
-
-        // Obtener y asignar el usuario desde el repositorio
-        User user = userRepository.findById(solicitudDTO.getUsuarioId())
-                .orElseThrow(() -> new Exception("Usuario con ID " + solicitudDTO.getUsuarioId() + " no encontrado"));
-        solicitud.setUsuario(user);
-
+                .orElseThrow(() -> new Exception("Servicio no encontrado"));
+    
+        // Crear la entidad SolicitudServicio a partir del DTO
+        SolicitudServicio solicitud = SolicitudServicio.builder()
+                .usuario(usuario)
+                .servicio(servicio)
+                .direccion(solicitudDTO.getDireccion())
+                .telefono(solicitudDTO.getTelefono())
+                .comentario(solicitudDTO.getComentario())
+                .fechaInicio(solicitudDTO.getFechaInicio())
+                .fechaFin(solicitudDTO.getFechaFin())
+                .build();
+    
+        // Guardar la solicitud en la base de datos
         SolicitudServicio solicitudGuardada = solicitudRepository.save(solicitud);
-
+    
+        // Retornar como DTO
         return new SolicitudServicioDTO(solicitudGuardada);
     }
+    
 
     // Obtener todas las solicitudes
     public List<SolicitudServicioDTO> obtenerTodasLasSolicitudes() {
