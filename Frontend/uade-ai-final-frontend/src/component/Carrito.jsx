@@ -8,7 +8,8 @@ import {
   eliminarTodoServicio,
   vaciarCarrito,
   confirmarCompra,
-} from "../features/carritoSlice";
+  limpiarStockError,
+} from "../features/carritoSlice"; // Incluye la acción para limpiar errores de stock
 import Modal from "./Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/Carrito.css";
@@ -16,6 +17,7 @@ import "../css/Carrito.css";
 function Carrito({ children }) {
   const dispatch = useDispatch();
   const serviciosCarrito = useSelector((state) => state.carrito.servicios);
+  const stockError = useSelector((state) => state.carrito.stockError); // Selecciona el error de stock del estado
   const usuario = useSelector((state) => state.auth.user);
   const [error, setError] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -35,7 +37,9 @@ function Carrito({ children }) {
   }, 0);
 
   const precioTotalConDescuento = serviciosCarrito.reduce((total, servicio) => {
-    const precioDescuento = parseFloat(servicio.precioDescuento || servicio.precio || 0);
+    const precioDescuento = parseFloat(
+      servicio.precioDescuento || servicio.precio || 0
+    );
     return total + precioDescuento * servicio.cantidad;
   }, 0);
 
@@ -59,6 +63,10 @@ function Carrito({ children }) {
 
   const handleCerrarConfirmModal = () => {
     setShowConfirmModal(false);
+  };
+
+  const handleCerrarStockModal = () => {
+    dispatch(limpiarStockError());
   };
 
   const handleConfirmarCompra = () => {
@@ -264,8 +272,18 @@ function Carrito({ children }) {
       >
         <p>El pedido del servicio se realizó con éxito.</p>
       </Modal>
+
+      {/* Modal de Error de Stock */}
+      <Modal
+        show={!!stockError}
+        onClose={handleCerrarStockModal}
+        title="Error de Stock"
+      >
+        <p>{stockError}</p>
+      </Modal>
     </div>
   );
 }
 
 export default Carrito;
+

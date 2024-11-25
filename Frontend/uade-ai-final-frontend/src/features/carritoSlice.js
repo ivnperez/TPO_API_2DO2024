@@ -4,6 +4,7 @@ const initialState = {
   servicios: [],
   status: 'idle',
   error: null,
+  stockError: null, // Nuevo estado para manejar errores relacionados con el stock
 };
 
 // Thunks para confirmar la compra
@@ -19,7 +20,7 @@ export const confirmarCompra = createAsyncThunk(
     }
 
     console.log('Token utilizado para confirmar la compra:', token);
-    
+
     const url = 'http://localhost:4002/ventas';
 
     try {
@@ -27,17 +28,15 @@ export const confirmarCompra = createAsyncThunk(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(compraData),
       });
 
-      // Agregar este log para verificar la respuesta completa antes de intentar parsearla como JSON
       const text = await response.text();
       console.log('Respuesta completa del servidor:', text);
 
       if (!response.ok) {
-        // Intentar parsear el error como JSON en caso de que el backend devuelva un JSON con el mensaje de error
         let errorData;
         try {
           errorData = JSON.parse(text);
@@ -47,7 +46,6 @@ export const confirmarCompra = createAsyncThunk(
         throw new Error(errorData.message || 'No se pudo confirmar la compra');
       }
 
-      // Si la respuesta es correcta, convertir a JSON
       const data = JSON.parse(text);
       return data;
     } catch (error) {
@@ -57,36 +55,50 @@ export const confirmarCompra = createAsyncThunk(
   }
 );
 
-
 // Slice para manejar el estado del carrito
 const carritoSlice = createSlice({
   name: 'carrito',
   initialState,
   reducers: {
     agregarServicio: (state, action) => {
-      const servicioExistente = state.servicios.find(servicio => servicio.id === action.payload.id);
+      const servicio = action.payload;
+      const servicioExistente = state.servicios.find(s => s.id === servicio.id);
+
+      // Validación de stock
       if (servicioExistente) {
-        servicioExistente.cantidad += action.payload.cantidad;
+        if (servicioExistente.cantidad + 1 > servicio.stock) {
+          state.stockError = `No hay stock suficiente para agregar más unidades del servicio "${servicio.nombre}".`;
+          return;
+        }
+        servicioExistente.cantidad += 1;
       } else {
-        state.servicios.push({ ...action.payload, cantidad: 1 });
+        if (servicio.stock <= 0) {
+          state.stockError = `El servicio "${servicio.nombre}" no tiene stock disponible.`;
+          return;
+        }
+        state.servicios.push({ ...servicio, cantidad: 1 });
       }
+      state.stockError = null; // Limpiar cualquier error previo de stock
     },
     eliminarServicio: (state, action) => {
-      const servicioExistente = state.servicios.find(servicio => servicio.id === action.payload);
+      const servicioExistente = state.servicios.find(s => s.id === action.payload);
       if (servicioExistente) {
         if (servicioExistente.cantidad > 1) {
           servicioExistente.cantidad -= 1;
         } else {
-          state.servicios = state.servicios.filter(servicio => servicio.id !== action.payload);
+          state.servicios = state.servicios.filter(s => s.id !== action.payload);
         }
       }
     },
     eliminarTodoServicio: (state, action) => {
-      state.servicios = state.servicios.filter(servicio => servicio.id !== action.payload);
+      state.servicios = state.servicios.filter(s => s.id !== action.payload);
     },
     vaciarCarrito: (state) => {
       state.servicios = [];
-    }
+    },
+    limpiarStockError: (state) => {
+      state.stockError = null; // Limpiar el error de stock
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -106,8 +118,13 @@ const carritoSlice = createSlice({
 });
 
 // Exportar las acciones
-export const { agregarServicio, eliminarServicio, eliminarTodoServicio, vaciarCarrito } = carritoSlice.actions;
+export const {
+  agregarServicio,
+  eliminarServicio,
+  eliminarTodoServicio,
+  vaciarCarrito,
+  limpiarStockError,
+} = carritoSlice.actions;
 
 // Exportar el reducer del slice
 export default carritoSlice.reducer;
-

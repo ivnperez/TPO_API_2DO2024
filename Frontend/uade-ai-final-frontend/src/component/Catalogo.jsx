@@ -18,9 +18,11 @@ function Catalogo() {
   const [ServiciosFiltrados, setServiciosFiltrados] = useState([]);
   const [tiposSeleccionados, setTiposSeleccionados] = useState([]);
 
-  const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal
-  const token = useSelector((state) => state.auth.token); // Obtenemos el token del estado global
-  const usuarioLogueado = !!token; // Booleano para verificar si está logueado
+  const [showModal, setShowModal] = useState(false); // Modal para login
+  const [showStockModal, setShowStockModal] = useState(false); // Modal para stock
+  const [stockMessage, setStockMessage] = useState(""); // Mensaje de error de stock
+  const token = useSelector((state) => state.auth.token);
+  const usuarioLogueado = !!token;
 
   useEffect(() => {
     getServicios()
@@ -84,14 +86,20 @@ function Catalogo() {
   };
 
   const handleAgregarCarrito = (e, Servicio) => {
-    e.stopPropagation(); // Detener propagación del clic hacia la tarjeta
-
+    e.stopPropagation();
+  
     if (!usuarioLogueado) {
       setShowModal(true); // Mostrar modal si no está logueado
       return;
     }
-
-    dispatch(agregarServicio({ ...Servicio, cantidad: 1 })); // Agregar al carrito si está logueado
+  
+    if (Servicio.stock <= 0) {
+      setStockMessage(`El servicio "${Servicio.nombre}" no tiene stock disponible.`);
+      setShowStockModal(true); // Mostrar modal de error de stock
+      return;
+    }
+  
+    dispatch(agregarServicio({ ...Servicio, cantidad: 1 }));
   };
 
   return (
@@ -180,7 +188,7 @@ function Catalogo() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal de login */}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -188,10 +196,21 @@ function Catalogo() {
       >
         <p>Debe iniciar sesión para agregar este servicio al carrito.</p>
       </Modal>
+
+      {/* Modal de stock insuficiente */}
+      <Modal
+        show={showStockModal}
+        onClose={() => setShowStockModal(false)}
+        title="Stock insuficiente"
+      >
+        <p>{stockMessage}</p>
+      </Modal>
     </div>
   );
 }
 
 export default Catalogo;
+
+
 
 
