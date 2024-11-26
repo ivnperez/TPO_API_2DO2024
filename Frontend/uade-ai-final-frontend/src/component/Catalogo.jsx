@@ -87,103 +87,106 @@ function Catalogo() {
 
   const handleAgregarCarrito = (e, Servicio) => {
     e.stopPropagation();
-  
+
     if (!usuarioLogueado) {
       setShowModal(true); // Mostrar modal si no está logueado
       return;
     }
-  
+
     if (Servicio.stock <= 0) {
       setStockMessage(`El servicio "${Servicio.nombre}" no tiene stock disponible.`);
       setShowStockModal(true); // Mostrar modal de error de stock
       return;
     }
-  
+
     dispatch(agregarServicio({ ...Servicio, cantidad: 1 }));
   };
 
   return (
-    <div className="catalogo-container">
-      <div className="filtros-column">
-        <div className="filtros-container">
-          <div className="filtros-group">
-            <h4>Tipos:</h4>
-            {filtros.tipos.map((tipo, index) => (
-              <div key={index} className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  value={tipo.id}
-                  id={`tipo-${index}`}
-                  onChange={handleTipoChange}
-                />
-                <label className="form-check-label" htmlFor={`tipo-${index}`}>
-                  {tipo.nombre}
-                </label>
+    <div className="catalogo-container" style={{ marginTop: "50px" }}>
+      <div className="row">
+        <div className="col-md-3">
+          <div className="filtros-column">
+            <div className="filtros-container">
+              <div className="filtros-group">
+                <h4>Tipos:</h4>
+                {filtros.tipos.map((tipo, index) => (
+                  <div key={index} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={tipo.id}
+                      id={`tipo-${index}`}
+                      onChange={handleTipoChange}
+                    />
+                    <label className="form-check-label" htmlFor={`tipo-${index}`}>
+                      {tipo.nombre}
+                    </label>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <button className="btn btn-primary mt-3" onClick={aplicarFiltro}>
-            Aplicar Filtro
-          </button>
-          <button className="btn btn-danger mt-3" onClick={limpiarFiltros}>
-            Eliminar Filtros
-          </button>
-        </div>
-      </div>
-      <div className="Servicios-container">
-        <h2 className="display-7 text-dark text-uppercase">Catalogo</h2>
-        <div className="catalogo-grid">
-          {ServiciosPaginaActual.map((product) => (
-            <div
-              key={product.id}
-              className="card"
-              onClick={() => handleCardClick(product.id)}
-            >
-              <img
-                src={product.imagen}
-                className="card-img-top"
-                alt={product.nombre}
-              />
-              <div className="card-content">
-                <div className="card-body">
-                  <h5 className="card-title">{product.nombre}</h5>
-                  <p className="card-text">
-                    <strong>${product.precio}</strong>
-                    {product.descuento > 0 && (
-                      <span style={{ color: "red", marginLeft: "10px" }}>
-                        -{product.descuento}%
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div className="card-footer">
-                  <button
-                    className="btn btn-primary"
-                    onClick={(e) => handleAgregarCarrito(e, product)}
-                  >
-                    Agregar al carrito
-                  </button>
-                </div>
-              </div>
+              <button className="btn btn-primary mt-3" onClick={aplicarFiltro}>
+                Aplicar Filtro
+              </button>
+              <button className="btn btn-danger mt-3" onClick={limpiarFiltros}>
+                Eliminar Filtros
+              </button>
             </div>
-          ))}
+          </div>
         </div>
-        <div className="pagination-container">
-          <div className="pagination">
-            {[...Array(Math.ceil(ServiciosFiltrados.length / ServiciosPorPagina)).keys()].map(
-              (numero) => (
-                <button
-                  key={numero + 1}
-                  onClick={() => cambiarPagina(numero + 1)}
-                  className={`btn btn-outline-primary ${
-                    numero + 1 === paginaActual ? "active" : ""
-                  }`}
+        <div className="col-md-9">
+          <div className="Servicios-container">
+            <div className="catalogo-grid">
+              {ServiciosPaginaActual.map((product) => (
+                <div
+                  key={product.id}
+                  className="card"
+                  onClick={() => handleCardClick(product.id)}
                 >
-                  {numero + 1}
-                </button>
-              )
-            )}
+                  <img
+                    src={product.imagen}
+                    className="card-img-top"
+                    alt={product.nombre}
+                  />
+                  <div className="card-content">
+                    <div className="card-body">
+                      <h5 className="card-title">{product.nombre}</h5>
+                      <p className="card-text">
+                        <strong>${product.precio}</strong>
+                        {product.descuento > 0 && (
+                          <span style={{ color: "red", marginLeft: "10px" }}>
+                            -{product.descuento}%
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="card-footer">
+                      <button
+                        className="btn btn-primary"
+                        onClick={(e) => handleAgregarCarrito(e, product)}
+                      >
+                        Agregar al carrito
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="pagination-container">
+              {[...Array(Math.ceil(ServiciosFiltrados.length / ServiciosPorPagina)).keys()].map(
+                (numero) => (
+                  <button
+                    key={numero + 1}
+                    onClick={() => cambiarPagina(numero + 1)}
+                    className={`btn btn-outline-primary ${
+                      numero + 1 === paginaActual ? "active" : ""
+                    }`}
+                  >
+                    {numero + 1}
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -210,6 +213,8 @@ function Catalogo() {
 }
 
 export default Catalogo;
+
+
 
 
 

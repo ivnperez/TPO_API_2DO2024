@@ -9,7 +9,8 @@ import {
   vaciarCarrito,
   confirmarCompra,
   limpiarStockError,
-} from "../features/carritoSlice"; // Incluye la acción para limpiar errores de stock
+} from "../features/carritoSlice";
+import { fetchSolicitudes } from "../features/solicitudesSlice"; // Importación de fetchSolicitudes
 import Modal from "./Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/Carrito.css";
@@ -17,12 +18,12 @@ import "../css/Carrito.css";
 function Carrito({ children }) {
   const dispatch = useDispatch();
   const serviciosCarrito = useSelector((state) => state.carrito.servicios);
-  const stockError = useSelector((state) => state.carrito.stockError); // Selecciona el error de stock del estado
+  const stockError = useSelector((state) => state.carrito.stockError);
   const usuario = useSelector((state) => state.auth.user);
   const [error, setError] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [showSolicitudModal, setShowSolicitudModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false); // Modal de confirmación
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
   const [comentario, setComentario] = useState("");
@@ -79,10 +80,10 @@ function Carrito({ children }) {
       direccion,
       telefono,
       comentario,
-      fechaInicio: new Date().toISOString().split("T")[0], // Fecha de inicio actual
-      fechaFin: new Date().toISOString().split("T")[0], // Ajusta según sea necesario
+      fechaInicio: new Date().toISOString().split("T")[0],
+      fechaFin: new Date().toISOString().split("T")[0],
       usuarioId: usuario.id,
-      servicioId: serviciosCarrito[0]?.id, // Usar el ID del primer servicio en el carrito
+      servicioId: serviciosCarrito[0]?.id,
     };
 
     setIsConfirming(true);
@@ -117,6 +118,9 @@ function Carrito({ children }) {
             setShowConfirmModal(true); // Mostrar modal de confirmación
             handleCerrarSolicitudModal();
             dispatch(vaciarCarrito()); // Vaciar carrito después de la compra
+
+            // **Actualizar la lista de solicitudes**
+            dispatch(fetchSolicitudes());
           })
           .catch((error) => {
             console.error("Error al confirmar la compra:", error);
@@ -286,4 +290,3 @@ function Carrito({ children }) {
 }
 
 export default Carrito;
-

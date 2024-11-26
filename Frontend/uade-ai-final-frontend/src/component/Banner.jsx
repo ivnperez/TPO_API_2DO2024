@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   Navigation,
   Pagination,
@@ -7,12 +6,9 @@ import {
   A11y,
   Autoplay,
 } from "swiper/modules";
-
 import { Swiper, SwiperSlide } from "swiper/react";
-
 import imgBanner from "../images/banner-image.png";
 import imgBanner2 from "../images/banner-image1.png";
-
 import { Link } from "react-router-dom";
 
 // Import Swiper styles
@@ -25,37 +21,38 @@ import "swiper/css/autoplay";
 function Banner() {
   const bannerTitleStyle = {
     fontWeight: "bold",
-    letterSpacing: "1px",
-    lineHeight: "1.2", 
-    marginBottom: "20px", 
-    color: "#ffffff",
+    letterSpacing: "1.5px",
+    lineHeight: "1.3",
+    marginBottom: "20px",
+    color: "#000", // Cambia según el diseño general
   };
 
   const buttonStyle = {
-    backgroundColor: "#0d6efd",
+    backgroundColor: "#007bff",
     color: "#ffffff",
-    padding: "10px 20px",
-    borderRadius: "5px",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    padding: "12px 24px",
+    borderRadius: "50px",
+    boxShadow: "0 5px 15px rgba(0, 123, 255, 0.3)",
     textTransform: "uppercase",
     border: "none",
-    transition: "background-color 0.3s ease, transform 0.3s ease",
-    marginTop: "15px",
+    fontSize: "16px",
+    fontWeight: "600",
+    transition: "all 0.3s ease",
+    marginTop: "20px",
   };
 
   const handleMouseEnter = (e) => {
-    e.target.style.backgroundColor = "#084298";
-    e.target.style.transform = "scale(1.05)";
+    e.target.style.backgroundColor = "#0056b3";
+    e.target.style.transform = "scale(1.1)";
   };
 
   const handleMouseLeave = (e) => {
-    e.target.style.backgroundColor = "#0d6efd";
+    e.target.style.backgroundColor = "#007bff";
     e.target.style.transform = "scale(1)";
   };
 
   return (
     <Swiper
-      // install Swiper modules
       modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}
       spaceBetween={50}
       slidesPerView={1}
@@ -63,66 +60,77 @@ function Banner() {
       pagination={{ clickable: true }}
       scrollbar={{ draggable: true }}
       autoplay={{ delay: 5000 }}
+      style={{ padding: "20px 0" }}
     >
       <SwiperSlide>
-        <div className="swiper-slide">
+        <div className="swiper-slide" style={{ backgroundColor: "#f8f9fa" }}>
           <div className="container">
-            <div className="row d-flex align-items-center">
-              <div className="col-md-6">
-                <div className="banner-content">
-                  <h3
-                    className="display-2 text-uppercase text-dark"
-                    style={bannerTitleStyle}
-                  >
-                    El mejor servicio disponible 24/7.
-                  </h3>
-                  <Link
-                    to="/Catalogo"
-                    className="btn"
-                    style={buttonStyle}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    Servicios Disponibles
-                  </Link>
-                </div>
+            <div className="row align-items-center">
+              <div className="col-md-6 text-center text-md-start">
+                <h3
+                  className="display-4 text-uppercase"
+                  style={bannerTitleStyle}
+                >
+                  El mejor servicio disponible 24/7.
+                </h3>
+                <Link
+                  to="/Catalogo"
+                  className="btn"
+                  style={buttonStyle}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Servicios Disponibles
+                </Link>
               </div>
-              <div className="col-md-6">
-                <div className="image-holder">
-                  <img src={imgBanner} alt="banner" />
-                </div>
+              <div className="col-md-6 text-center">
+                <img
+                  src={imgBanner}
+                  alt="banner"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    borderRadius: "15px",
+                    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+                  }}
+                />
               </div>
             </div>
           </div>
         </div>
       </SwiperSlide>
       <SwiperSlide>
-        <div className="swiper-slide">
+        <div className="swiper-slide" style={{ backgroundColor: "#e9ecef" }}>
           <div className="container">
-            <div className="row d-flex align-items-center">
-              <div className="col-md-6">
-                <div className="banner-content">
-                  <h3
-                    className="display-2 text-uppercase text-dark"
-                    style={bannerTitleStyle}
-                  >
-                    No pierdas el tiempo y dinero.
-                  </h3>
-                  <Link
-                    to="/Catalogo"
-                    className="btn"
-                    style={buttonStyle}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    Servicios Disponibles
-                  </Link>
-                </div>
+            <div className="row align-items-center">
+              <div className="col-md-6 text-center text-md-start">
+                <h3
+                  className="display-4 text-uppercase"
+                  style={bannerTitleStyle}
+                >
+                  No pierdas el tiempo y dinero.
+                </h3>
+                <Link
+                  to="/Catalogo"
+                  className="btn"
+                  style={buttonStyle}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Servicios Disponibles
+                </Link>
               </div>
-              <div className="col-md-6">
-                <div className="image-holder">
-                  <img src={imgBanner2} alt="banner" />
-                </div>
+              <div className="col-md-6 text-center">
+                <img
+                  src={imgBanner2}
+                  alt="banner"
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                    borderRadius: "15px",
+                    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+                  }}
+                />
               </div>
             </div>
           </div>

@@ -97,20 +97,24 @@ function CatalogoABM() {
   };
 
   const abrirModal = (modo, Servicio = null) => {
-    setModoEdicion(modo === 'editar');
+    setModoEdicion(modo === "editar");
     setServicioseleccionado(Servicio);
-    setNuevoServicio(Servicio || {
-      nombre: "",
-      precio: "",
-      descripcion: "",
-      imagen: null,
-      tipo: "",
-      stock: 0,
-      descuento: 0.0,
-      flag_destacar: false
-    });
+    setNuevoServicio(
+      Servicio || {
+        nombre: "",
+        precio: "",
+        descripcion: "",
+        imagen: null,
+        imagenUrl: Servicio?.imagen, // Guardar URL de la imagen existente
+        tipo: "",
+        stock: 0,
+        descuento: 0.0,
+        flag_destacar: false,
+      }
+    );
     setShowModal(true);
   };
+  
 
   const cerrarModal = () => {
     setShowModal(false);
@@ -118,8 +122,13 @@ function CatalogoABM() {
   };
 
   const manejarSubmit = () => {
+    const payload = {
+      ...nuevoServicio,
+      id: Servicioseleccionado?.id, // Asegurarse de incluir el ID del servicio
+    };
+  
     if (modoEdicion) {
-      dispatch(updateServicio(nuevoServicio))
+      dispatch(updateServicio(payload))
         .unwrap()
         .then(() => {
           dispatch(fetchServicios());
@@ -140,6 +149,7 @@ function CatalogoABM() {
         });
     }
   };
+  
 
   const eliminarServicioseleccionado = (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este Servicio?")) {

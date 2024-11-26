@@ -25,12 +25,15 @@ public class ServicioDTO {
     private Integer stock;
 
     public Blob getImagen() {
-        try {   
+        if (imagen == null) {
+            return null; // Retornar null si la imagen no está presente
+        }
+        try {
             byte[] bytes = imagen.getBytes();
-            Blob blob = new javax.sql.rowset.serial.SerialBlob(bytes);
-            return blob;
+            return new javax.sql.rowset.serial.SerialBlob(bytes);
         } catch (IOException | SQLException e) {
-            return null;
+            return null; // Manejar cualquier excepción devolviendo null
         }
     }
+    
 }

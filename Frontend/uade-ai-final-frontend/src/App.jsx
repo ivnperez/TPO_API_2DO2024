@@ -7,8 +7,8 @@ import Abm from "./component/Abm.jsx";
 import Registro from "./component/Registro.jsx";
 import DetalleServicio from "./component/DetalleServicio.jsx";
 import Login from "./component/Login.jsx";
-
-
+import AdminPanel from "./component/AdminPanel.jsx";
+import ListaSolicitudes from "./component/ListaSolicitudes.jsx";
 
 function App() {
   return (
@@ -20,11 +20,15 @@ function App() {
           <Route path="/Catalogo" element={<Catalogo />} />
           <Route path="/Catalogo/:id" element={<DetalleServicio />} />
           <Route path="/Abm" element={<Abm />} />
+          <Route path="/solicitudes" element={<ListaSolicitudes />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </Carrito>
     </>
   );
 }
+
 export default App;
+

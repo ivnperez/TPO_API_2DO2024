@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Blob;
 import com.tpo.ad_destapaciones.entity.Servicio;
 import com.tpo.ad_destapaciones.entity.Tipo;
 import com.tpo.ad_destapaciones.entity.dto.ServicioDTO;
@@ -82,7 +83,12 @@ public class ABMController {
                 servicioExistente.setTipo(tipo);
                 servicioExistente.setStock(modificacion.getStock());
                 servicioExistente.setFlag_destacar(modificacion.getFlag_destacar());
-                servicioExistente.setImagen(modificacion.getImagen()); // Manejar la imagen
+    
+                // Solo actualizar la imagen si se proporciona una nueva
+                Blob nuevaImagen = modificacion.getImagen();
+                if (nuevaImagen != null) {
+                    servicioExistente.setImagen(nuevaImagen);
+                }
     
                 Servicio servicioActualizado = servicioService.modificarServicio(servicioExistente);
                 return ResponseEntity.ok(servicioActualizado);
@@ -93,4 +99,5 @@ public class ABMController {
             return ResponseEntity.notFound().build();
         }
     }
+    
 }

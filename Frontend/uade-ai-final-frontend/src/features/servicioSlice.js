@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchSolicitudes } from "./solicitudesSlice"; // Importamos fetchSolicitudes
 
 const urlServer2 = "http://localhost:4002/";
 
@@ -58,27 +59,17 @@ export const fetchServicioByID = createAsyncThunk(
 
 export const fetchServiciosDestacados = createAsyncThunk(
   "servicios/fetchServiciosDestacados",
-  async (_, { getState, rejectWithValue }) => {
-    const state = getState();
-    const token = state.auth.token;
-
-    if (!token) {
-      console.error("Token no disponible. Por favor, inicia sesión.");
-      return rejectWithValue("Token no disponible. Por favor, inicia sesión.");
-    }
-
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${urlServer2}catalogo`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(`${urlServer2}catalogo`); // Asume que el endpoint no requiere token
       if (!response.ok) {
         throw new Error("Error al obtener los Servicios.");
       }
       const data = await response.json();
-      return data.content.filter((Servicio) => Servicio.flag_destacar === true);
+      // Filtra los servicios destacados en el frontend
+      return data.content.filter((servicio) => servicio.flag_destacar === true);
     } catch (error) {
+      console.error("Error fetching destacados:", error);
       return rejectWithValue(error.message);
     }
   }
@@ -87,7 +78,7 @@ export const fetchServiciosDestacados = createAsyncThunk(
 // Thunk para crear una nueva solicitud de servicio
 export const crearSolicitud = createAsyncThunk(
   "servicios/crearSolicitud",
-  async (solicitudData, { getState, rejectWithValue }) => {
+  async (solicitudData, { getState, dispatch, rejectWithValue }) => {
     try {
       const state = getState();
       const token = state.auth.token;
@@ -105,7 +96,12 @@ export const crearSolicitud = createAsyncThunk(
         throw new Error("Error al crear la solicitud.");
       }
 
-      return await response.json();
+      const nuevaSolicitud = await response.json();
+
+      // Después de crear la solicitud, actualiza las solicitudes
+      dispatch(fetchSolicitudes());
+
+      return nuevaSolicitud;
     } catch (error) {
       return rejectWithValue(error.message);
     }
