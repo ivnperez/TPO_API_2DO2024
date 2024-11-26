@@ -13,7 +13,7 @@ import lombok.*;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor // Este también es necesario si tienes un constructor con argumentos
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id

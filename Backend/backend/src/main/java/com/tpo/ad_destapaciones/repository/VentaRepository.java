@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Long> {
     @Query(value = "SELECT v FROM Venta v WHERE v.user = ?1")
-        List<Venta> findByUser(User user);  // Método para buscar ventas por objeto User
+        List<Venta> findByUser(User user);  
     }

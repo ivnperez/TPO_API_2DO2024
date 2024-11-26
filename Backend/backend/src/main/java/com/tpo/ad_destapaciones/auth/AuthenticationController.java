@@ -27,18 +27,16 @@ public class AuthenticationController {
             return ResponseEntity.ok(service.register(request));
         } catch (BadCredentialsException e) {
             // Manejo específico para el caso de usuario o correo duplicado
-            System.out.println("Error de registro: " + e.getMessage()); // Agregar log para ver el mensaje exacto
+            System.out.println("Error de registro: " + e.getMessage()); 
             return ResponseEntity.badRequest().body(
                 AuthenticationResponse.builder()
                     .message(e.getMessage())
                     .build()
             );
         } catch (DataIntegrityViolationException e) {
-            // Agregar log para capturar detalles del error
             System.out.println("Error de integridad de datos: " + e.getMessage());
             throw new BadCredentialsException("El registro ha fallado por una violación de integridad de datos", e);
         } catch (Exception e) {
-            // Capturar cualquier otro error
             System.out.println("Error inesperado en el registro: " + e.getMessage());
             return ResponseEntity.status(500).body(
                 AuthenticationResponse.builder()

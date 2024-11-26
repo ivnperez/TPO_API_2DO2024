@@ -21,7 +21,6 @@ public class SolicitudServicioDTO {
     private Long servicioId;
     private String servicioNombre;
 
-    // Constructor que recibe la entidad SolicitudServicio
     public SolicitudServicioDTO(com.tpo.ad_destapaciones.entity.SolicitudServicio solicitud) {
         this.id = solicitud.getId();
         this.direccion = solicitud.getDireccion();

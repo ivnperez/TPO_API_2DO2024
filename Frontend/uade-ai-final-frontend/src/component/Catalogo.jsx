@@ -1,77 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { getServicios } from "../services/Servicios";
-import { getFiltros, getServiciosFiltros } from "../services/Filtros";
-import "../css/Catalogo.css";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchServicios,
+  fetchTipos,
+  setFiltrosSeleccionados,
+  limpiarFiltros,
+} from "../features/servicioSlice";
 import { agregarServicio } from "../features/carritoSlice";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
+import "../css/Catalogo.css";
 
 function Catalogo() {
-  const [Servicios, setServicios] = useState([]);
-  const [paginaActual, setPaginaActual] = useState(1);
-  const ServiciosPorPagina = 3;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [filtros, setFiltros] = useState({ tipos: [] });
-  const [ServiciosFiltrados, setServiciosFiltrados] = useState([]);
-  const [tiposSeleccionados, setTiposSeleccionados] = useState([]);
-
-  const [showModal, setShowModal] = useState(false); // Modal para login
-  const [showStockModal, setShowStockModal] = useState(false); // Modal para stock
-  const [stockMessage, setStockMessage] = useState(""); // Mensaje de error de stock
+  // Estados desde Redux
+  const ServiciosFiltrados = useSelector((state) => state.servicios.filtrados);
+  const Tipos = useSelector((state) => state.servicios.tipos);
+  const filtrosSeleccionados = useSelector(
+    (state) => state.servicios.filtrosSeleccionados
+  );
+  const statusServicios = useSelector((state) => state.servicios.status);
   const token = useSelector((state) => state.auth.token);
   const usuarioLogueado = !!token;
 
+  // Estados locales
+  const [paginaActual, setPaginaActual] = useState(1);
+  const ServiciosPorPagina = 3;
+
+  // Estados para modales
+  const [showModal, setShowModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [stockMessage, setStockMessage] = useState("");
+
+  // Cargar servicios y filtros al montar el componente
   useEffect(() => {
-    getServicios()
-      .then((data) => {
-        setServicios(data);
-        setServiciosFiltrados(data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener getServicios:", error);
-      });
+    if (statusServicios === "idle") {
+      dispatch(fetchServicios());
+    }
+    dispatch(fetchTipos());
+  }, [dispatch, statusServicios]);
 
-    getFiltros()
-      .then((data) => {
-        setFiltros({ tipos: data.tipos });
-      })
-      .catch((error) => {
-        console.error("Error al obtener getFiltros:", error);
-      });
-  }, []);
-
+  // Manejar selección de tipos
   const handleTipoChange = (event) => {
     const tipoId = parseInt(event.target.value);
+    let nuevosFiltros = [...filtrosSeleccionados];
+
     if (event.target.checked) {
-      setTiposSeleccionados([...tiposSeleccionados, tipoId]);
+      nuevosFiltros.push(tipoId);
     } else {
-      setTiposSeleccionados(tiposSeleccionados.filter((id) => id !== tipoId));
+      nuevosFiltros = nuevosFiltros.filter((id) => id !== tipoId);
     }
+
+    dispatch(setFiltrosSeleccionados(nuevosFiltros));
+    setPaginaActual(1); // Resetear a la primera página
   };
 
-  const aplicarFiltro = () => {
-    setPaginaActual(1);
-    getServiciosFiltros({ tipos: tiposSeleccionados })
-      .then((ServiciosFiltradosTemp) => {
-        setServiciosFiltrados(ServiciosFiltradosTemp);
-      })
-      .catch((error) => {
-        console.error("Error al aplicar filtro:", error);
-      });
-  };
-
-  const limpiarFiltros = () => {
-    setTiposSeleccionados([]);
-    setServiciosFiltrados(Servicios);
-    document
-      .querySelectorAll('.form-check-input[type="checkbox"]')
-      .forEach((checkbox) => (checkbox.checked = false));
+  // Limpiar filtros
+  const handleLimpiarFiltros = () => {
+    dispatch(limpiarFiltros());
     setPaginaActual(1);
   };
 
+  // Calcular servicios de la página actual
   const ServiciosPaginaActual = ServiciosFiltrados.slice(
     (paginaActual - 1) * ServiciosPorPagina,
     paginaActual * ServiciosPorPagina
@@ -102,6 +94,14 @@ function Catalogo() {
     dispatch(agregarServicio({ ...Servicio, cantidad: 1 }));
   };
 
+  if (statusServicios === "loading") {
+    return <p>Cargando servicios...</p>;
+  }
+
+  if (statusServicios === "failed") {
+    return <p>Error al cargar servicios. Por favor, intenta nuevamente.</p>;
+  }
+
   return (
     <div className="catalogo-container" style={{ marginTop: "50px" }}>
       <div className="row">
@@ -110,25 +110,26 @@ function Catalogo() {
             <div className="filtros-container">
               <div className="filtros-group">
                 <h4>Tipos:</h4>
-                {filtros.tipos.map((tipo, index) => (
-                  <div key={index} className="form-check">
+                {Tipos.map((tipo) => (
+                  <div key={tipo.id} className="form-check">
                     <input
                       className="form-check-input"
                       type="checkbox"
                       value={tipo.id}
-                      id={`tipo-${index}`}
+                      id={`tipo-${tipo.id}`}
                       onChange={handleTipoChange}
+                      checked={filtrosSeleccionados.includes(tipo.id)}
                     />
-                    <label className="form-check-label" htmlFor={`tipo-${index}`}>
+                    <label className="form-check-label" htmlFor={`tipo-${tipo.id}`}>
                       {tipo.nombre}
                     </label>
                   </div>
                 ))}
               </div>
-              <button className="btn btn-primary mt-3" onClick={aplicarFiltro}>
+              <button className="btn btn-primary mt-3" onClick={() => setPaginaActual(1)}>
                 Aplicar Filtro
               </button>
-              <button className="btn btn-danger mt-3" onClick={limpiarFiltros}>
+              <button className="btn btn-danger mt-3" onClick={handleLimpiarFiltros}>
                 Eliminar Filtros
               </button>
             </div>
@@ -213,6 +214,12 @@ function Catalogo() {
 }
 
 export default Catalogo;
+
+
+
+
+
+
 
 
 

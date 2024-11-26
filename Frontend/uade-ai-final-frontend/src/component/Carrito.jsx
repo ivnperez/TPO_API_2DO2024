@@ -10,7 +10,8 @@ import {
   confirmarCompra,
   limpiarStockError,
 } from "../features/carritoSlice";
-import { fetchSolicitudes } from "../features/solicitudesSlice"; // Importación de fetchSolicitudes
+import { fetchSolicitudes } from "../features/solicitudesSlice";
+import { createSolicitud } from "../features/solicitudesSlice"; 
 import Modal from "./Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/Carrito.css";
@@ -28,15 +29,18 @@ function Carrito({ children }) {
   const [telefono, setTelefono] = useState("");
   const [comentario, setComentario] = useState("");
 
+  // Esto hace que el carrito se limpie cuando cambia el contenido
   useEffect(() => {
     setError(null);
   }, [serviciosCarrito]);
 
+  //Funcion para calcular el precio total de los servicios en el carrito
   const precioTotal = serviciosCarrito.reduce((total, servicio) => {
     const precio = parseFloat(servicio.precio || 0);
     return total + precio * servicio.cantidad;
   }, 0);
 
+  //Funcion para calcular el precio pero con el descuento
   const precioTotalConDescuento = serviciosCarrito.reduce((total, servicio) => {
     const precioDescuento = parseFloat(
       servicio.precioDescuento || servicio.precio || 0
@@ -44,6 +48,7 @@ function Carrito({ children }) {
     return total + precioDescuento * servicio.cantidad;
   }, 0);
 
+  // Esto sirve para cerrar el modal del carrito y abrir el modal para completar la solicitud.
   const handleAbrirSolicitudModal = () => {
     const carritoModalElement = document.getElementById("carritoModal");
     if (carritoModalElement) {
@@ -55,6 +60,7 @@ function Carrito({ children }) {
     setShowSolicitudModal(true);
   };
 
+  // Cierra el modal de solicitud y limpia los campos del formulario.
   const handleCerrarSolicitudModal = () => {
     setShowSolicitudModal(false);
     setDireccion("");
@@ -62,20 +68,23 @@ function Carrito({ children }) {
     setComentario("");
   };
 
+  //Cierra el modal que confirma la compra
   const handleCerrarConfirmModal = () => {
     setShowConfirmModal(false);
   };
 
+  //Elimina errores relacionados con el stock del estado global.
   const handleCerrarStockModal = () => {
     dispatch(limpiarStockError());
   };
 
   const handleConfirmarCompra = () => {
+    // Aca verificamos que el usuario esta logueado para hacer la compra 
     if (!usuario || !usuario.id) {
       alert("Debe iniciar sesión para completar la compra.");
       return;
     }
-
+// Prepara los datos para enviar la solicitud de servicio, a futuro modificar fecha inicio y fin para que sea un seleccionable
     const solicitudData = {
       direccion,
       telefono,
@@ -88,20 +97,8 @@ function Carrito({ children }) {
 
     setIsConfirming(true);
 
-    // Crear solicitud y luego confirmar la compra
-    fetch("http://localhost:4002/solicitudes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(solicitudData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Error al crear la solicitud.");
-        }
-        return response.json();
-      })
+    // LLama al thunk de crearSolicitud para hacer el post de solicitud
+    dispatch(createSolicitud(solicitudData))
       .then(() => {
         // Confirmar compra
         const compraData = {
@@ -112,14 +109,14 @@ function Carrito({ children }) {
           })),
           total: precioTotalConDescuento,
         };
-
+        // Llama al thunk de confirmarCompra para completarla
         dispatch(confirmarCompra(compraData))
           .then(() => {
             setShowConfirmModal(true); // Mostrar modal de confirmación
             handleCerrarSolicitudModal();
             dispatch(vaciarCarrito()); // Vaciar carrito después de la compra
 
-            // **Actualizar la lista de solicitudes**
+            // Esto actualiza la lista de solicitudes en el estado global
             dispatch(fetchSolicitudes());
           })
           .catch((error) => {

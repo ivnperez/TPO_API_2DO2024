@@ -27,17 +27,17 @@ public class SolicitudService {
     @Autowired
     private UserRepository userRepository;
 
-    // Crear una nueva solicitud
+    // Crea una nueva solicitud
     public SolicitudServicioDTO crearSolicitud(SolicitudServicioDTO solicitudDTO) throws Exception {
-        // Buscar usuario por ID
+        // Busca usuario por ID
         User usuario = userRepository.findById(solicitudDTO.getUsuarioId())
                 .orElseThrow(() -> new Exception("Usuario no encontrado"));
     
-        // Buscar servicio por ID
+        // Busca servicio por ID
         Servicio servicio = servicioRepository.findById(solicitudDTO.getServicioId())
                 .orElseThrow(() -> new Exception("Servicio no encontrado"));
     
-        // Crear la entidad SolicitudServicio a partir del DTO
+        // Crea la entidad SolicitudServicio a partir del DTO
         SolicitudServicio solicitud = SolicitudServicio.builder()
                 .usuario(usuario)
                 .servicio(servicio)
@@ -48,15 +48,15 @@ public class SolicitudService {
                 .fechaFin(solicitudDTO.getFechaFin())
                 .build();
     
-        // Guardar la solicitud en la base de datos
+        // Guarda la solicitud en la base de datos
         SolicitudServicio solicitudGuardada = solicitudRepository.save(solicitud);
     
-        // Retornar como DTO
+        // Retorna como DTO
         return new SolicitudServicioDTO(solicitudGuardada);
     }
     
 
-    // Obtener todas las solicitudes
+    // Obtiene todas las solicitudes
     public List<SolicitudServicioDTO> obtenerTodasLasSolicitudes() {
         List<SolicitudServicio> solicitudes = solicitudRepository.findAll();
         return solicitudes.stream()
@@ -64,7 +64,7 @@ public class SolicitudService {
                 .collect(Collectors.toList());
     }
 
-    // Obtener solicitudes por usuario
+    // Obtiene solicitudes por usuario
     public List<SolicitudServicioDTO> obtenerSolicitudesPorUsuario(Long idUsuario) {
         List<SolicitudServicio> solicitudes = solicitudRepository.findByUsuarioId(idUsuario);
         return solicitudes.stream()
@@ -72,7 +72,7 @@ public class SolicitudService {
                 .collect(Collectors.toList());
     }
 
-    // Actualizar una solicitud desde un DTO
+    // Actualiza una solicitud desde un DTO
     public SolicitudServicioDTO actualizarSolicitud(Long id, SolicitudServicioDTO solicitudDTO) throws Exception {
         Optional<SolicitudServicio> solicitudExistente = solicitudRepository.findById(id);
         if (solicitudExistente.isPresent()) {
@@ -84,12 +84,12 @@ public class SolicitudService {
             solicitudActualizada.setFechaInicio(solicitudDTO.getFechaInicio());
             solicitudActualizada.setFechaFin(solicitudDTO.getFechaFin());
 
-            // Obtener y asignar el servicio desde el repositorio
+            // Obtiene y asigna el servicio desde el repositorio
             Servicio servicio = servicioRepository.findById(solicitudDTO.getServicioId())
                     .orElseThrow(() -> new Exception("Servicio con ID " + solicitudDTO.getServicioId() + " no encontrado"));
             solicitudActualizada.setServicio(servicio);
 
-            // Obtener y asignar el usuario desde el repositorio
+            // Obtiene y asigna el usuario desde el repositorio
             User user = userRepository.findById(solicitudDTO.getUsuarioId())
                     .orElseThrow(() -> new Exception("Usuario con ID " + solicitudDTO.getUsuarioId() + " no encontrado"));
             solicitudActualizada.setUsuario(user);
@@ -101,7 +101,7 @@ public class SolicitudService {
         }
     }
 
-    // Eliminar una solicitud
+    // Elimina una solicitud
     public void eliminarSolicitud(Long id) throws Exception {
         Optional<SolicitudServicio> solicitud = solicitudRepository.findById(id);
         if (solicitud.isPresent()) {

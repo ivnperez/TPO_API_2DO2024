@@ -24,17 +24,17 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        // Verificar si el correo ya existe
+        // Verifica si el correo ya existe
         if (repository.existsByEmail(request.getEmail())) {
             throw new BadCredentialsException("El correo electrónico ya está registrado");
         }
 
-        // Verificar si el nombre de usuario ya existe
+        // Verifica si el nombre de usuario ya existe
         if (repository.existsByUsuario(request.getUsuario())) {
             throw new BadCredentialsException("El nombre de usuario ya está en uso");
         }
 
-        // Crear y guardar el nuevo usuario
+        // Crea y guarda el nuevo usuario
         var user = User.builder()
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())  

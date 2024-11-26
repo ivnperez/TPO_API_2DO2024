@@ -11,7 +11,6 @@ import imgBanner from "../images/banner-image.png";
 import imgBanner2 from "../images/banner-image1.png";
 import { Link } from "react-router-dom";
 
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -24,7 +23,7 @@ function Banner() {
     letterSpacing: "1.5px",
     lineHeight: "1.3",
     marginBottom: "20px",
-    color: "#000", // Cambia según el diseño general
+    color: "#000",
   };
 
   const buttonStyle = {

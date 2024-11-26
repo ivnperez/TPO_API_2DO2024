@@ -18,11 +18,11 @@ public class SolicitudServicio {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
-    private User usuario; // Relación con la entidad User
+    private User usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "servicio_id", nullable = false)
-    private Servicio servicio; // Relación con la entidad Servicio (asumiendo que ya existe)
+    private Servicio servicio;
 
     @Column(nullable = false)
     private String direccion;
@@ -31,7 +31,7 @@ public class SolicitudServicio {
     private String telefono;
 
     @Column(length = 500)
-    private String comentario; // Campo opcional para comentarios
+    private String comentario;
 
     @Column(nullable = false)
     private LocalDate fechaInicio;

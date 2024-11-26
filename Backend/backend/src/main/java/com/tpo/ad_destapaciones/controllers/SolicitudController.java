@@ -15,15 +15,14 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/solicitudes")
-@CrossOrigin // Permitir solicitudes desde el frontend
+@CrossOrigin 
 public class SolicitudController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SolicitudController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SolicitudController.class); // Esto lo  agregue para habilitar el registro de logs para ver donde fallaba
 
     @Autowired
     private SolicitudService solicitudService;
 
-    // Crear una nueva solicitud
     @PostMapping
     public ResponseEntity<SolicitudServicioDTO> crearSolicitud(@RequestBody SolicitudServicioDTO solicitudDTO) {
         try {
@@ -35,7 +34,6 @@ public class SolicitudController {
         }
     }
 
-    // Obtener todas las solicitudes
     @GetMapping
     public ResponseEntity<List<SolicitudServicioDTO>> obtenerTodasLasSolicitudes() {
         logger.info("Solicitud para obtener todas las solicitudes");
@@ -49,7 +47,6 @@ public class SolicitudController {
         }
     }
 
-    // Obtener solicitudes por usuario
     @GetMapping("/usuario/{idUsuario}")
     public ResponseEntity<List<SolicitudServicioDTO>> obtenerSolicitudesPorUsuario(@PathVariable Long idUsuario) {
         logger.info("Solicitud para obtener solicitudes del usuario con ID: {}", idUsuario);
@@ -63,7 +60,6 @@ public class SolicitudController {
         }
     }
 
-    // Actualizar una solicitud
     @PutMapping("/{id}")
     public ResponseEntity<SolicitudServicioDTO> actualizarSolicitud(@PathVariable Long id, @RequestBody SolicitudServicioDTO solicitudDTO) {
         logger.info("Solicitud para actualizar la solicitud con ID: {}", id);
@@ -77,7 +73,6 @@ public class SolicitudController {
         }
     }
 
-    // Eliminar una solicitud
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarSolicitud(@PathVariable Long id) {
         logger.info("Solicitud para eliminar la solicitud con ID: {}", id);
